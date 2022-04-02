@@ -16,6 +16,8 @@ public:
     std::vector<float> get_roots();
 protected:
     virtual void count_coefs();
+    float error_est_sum(std::vector<float> est_roots);  //error estimation
+    float error_est_max(std::vector<float> est_roots);
     std::vector<float> roots;
     std::vector<float> coefs;   //coefficients of a polynomial
 };

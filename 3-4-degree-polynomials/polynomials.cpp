@@ -19,6 +19,28 @@ polynomial::~polynomial()
 
 
 
+float polynomial::error_est_sum(std::vector<float> est_roots)
+{
+    //if (est_roots.size()!=roots.size())
+    //  exception
+    //else
+    float est = 0;
+    for (int i = 0; i < roots.size(); ++i)
+        est += abs(est_roots[i] - roots[i]);
+    return est;
+}
+
+float polynomial::error_est_max(std::vector<float> est_roots)
+{
+    //if (est_roots.size()!=roots.size())
+    //  exception
+    //else
+    float est = 0;
+    for (int i = 0; i < roots.size(); ++i)
+        est += abs(est_roots[i] - roots[i]) / std::max(est_roots[i], roots[i]);
+    return est;
+}
+
 void polynomial::info()
 {
     std::cout << "~~~~~~~~~~~~~~~~" << std::endl << "Degree of the polynomial: " << roots.size();
