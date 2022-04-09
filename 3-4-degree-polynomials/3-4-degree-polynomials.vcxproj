@@ -141,7 +141,7 @@
   <ItemGroup>
     <ClCompile Include="main.cpp" />
     <ClCompile Include="polynomials.cpp" />
-    <ClCompile Include="Tiruneh.cpp" />
+    <ClCompile Include="tiruneh.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="polynomials.h" />
