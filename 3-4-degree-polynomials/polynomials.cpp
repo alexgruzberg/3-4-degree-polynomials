@@ -1,6 +1,20 @@
 #include "polynomials.h"
 #include <algorithm>
 
+///                                 ///   
+///         COMPLEX NUMBERS         ///
+///                                 ///   
+
+void print(complex z)
+{
+    if (z.imag() == 0)
+        std::cout << z.real();
+    else if (z.imag() > 0)
+        std::cout << z.real() << "+" << z.imag() << "i";
+    else // z.imag() < 0
+        std::cout << z.real() << z.imag() << "i";
+}
+
 ///                             ///
 ///         POLYNOMIAL          ///
 ///                             ///
@@ -19,25 +33,14 @@ polynomial::~polynomial()
 
 
 
-float polynomial::error_est_sum(std::vector<float> est_roots)
+complex polynomial::error_est_abs(complex_vector est_roots)
 {
     //if (est_roots.size()!=roots.size())
     //  exception
     //else
-    float est = 0;
+    complex est = 0;
     for (int i = 0; i < roots.size(); ++i)
         est += abs(est_roots[i] - roots[i]);
-    return est;
-}
-
-float polynomial::error_est_max(std::vector<float> est_roots)
-{
-    //if (est_roots.size()!=roots.size())
-    //  exception
-    //else
-    float est = 0;
-    for (int i = 0; i < roots.size(); ++i)
-        est += abs(est_roots[i] - roots[i]) / std::max(est_roots[i], roots[i]);
     return est;
 }
 
@@ -47,26 +50,24 @@ void polynomial::info()
     std::cout << std::endl << "The polynomial: x^" << coefs.size();
     for (int i = coefs.size() - 1; i > 0; --i)
     {
-        if (coefs[i] < 0) std::cout << " - " << std::abs(coefs[i]);
-        else std::cout << " + " << coefs[i];
+        std::cout << " + ("; print(coefs[i]); std::cout << ")";
         std::cout << "*x^" << i;
     }
-    if (coefs[0] < 0) std::cout << " - " << std::abs(coefs[0]);
-    else std::cout << " + " << coefs[0];
+    std::cout << " + "; print(coefs[0]);
     std::cout << std::endl << "Roots of the polynomial: ";
     for (auto v : roots)
     {
-        std::cout << v << ", ";
+        print(v); std::cout << ", ";
     }
     std::cout << std::endl << "~~~~~~~~~~~~~~~~";
 }
 
-std::vector<float> polynomial::get_coefs()
+complex_vector polynomial::get_coefs()
 {
     return coefs;
 }
 
-std::vector<float> polynomial::get_roots()
+complex_vector polynomial::get_roots()
 {
     return roots;
 }
@@ -87,7 +88,7 @@ third_degree_polynomial::third_degree_polynomial() : polynomial(3)
 {
 }
 
-third_degree_polynomial::third_degree_polynomial(float a, float b, float c) : polynomial(3)
+third_degree_polynomial::third_degree_polynomial(complex a, complex b, complex c) : polynomial(3)
 {
     roots[0] = a; roots[1] = b; roots[2] = c;
     count_coefs();
@@ -116,7 +117,7 @@ fourth_degree_polynomial::fourth_degree_polynomial() : polynomial(4)
 {
 }
 
-fourth_degree_polynomial::fourth_degree_polynomial(float a, float b, float c, float d) : polynomial(4)
+fourth_degree_polynomial::fourth_degree_polynomial(complex a, complex b, complex c, complex d) : polynomial(4)
 {
     roots[0] = a; roots[1] = b; roots[2] = c; roots[3] = d;
     count_coefs();
