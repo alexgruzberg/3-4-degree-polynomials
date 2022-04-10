@@ -1,5 +1,4 @@
 #include "polynomials.h"
-#include <algorithm>
 
 ///                             ///
 ///         POLYNOMIAL          ///
@@ -58,7 +57,7 @@ void polynomial::info()
     {
         std::cout << v << ", ";
     }
-    std::cout << std::endl << "~~~~~~~~~~~~~~~~";
+    std::cout << std::endl << "~~~~~~~~~~~~~~~~" << std::endl;
 }
 
 std::vector<float> polynomial::get_coefs()
@@ -93,6 +92,12 @@ third_degree_polynomial::third_degree_polynomial(float a, float b, float c) : po
     count_coefs();
 }
 
+third_degree_polynomial::third_degree_polynomial(std::vector<float> rec_roots) : polynomial(3)
+{
+    for (int i = 0; i < 3; ++i) roots[i] = rec_roots[i];
+    count_coefs();
+}
+
 third_degree_polynomial::~third_degree_polynomial()
 {
 }
@@ -119,6 +124,12 @@ fourth_degree_polynomial::fourth_degree_polynomial() : polynomial(4)
 fourth_degree_polynomial::fourth_degree_polynomial(float a, float b, float c, float d) : polynomial(4)
 {
     roots[0] = a; roots[1] = b; roots[2] = c; roots[3] = d;
+    count_coefs();
+}
+
+fourth_degree_polynomial::fourth_degree_polynomial(std::vector<float> rec_roots) : polynomial(4)
+{
+    for (int i = 0; i < 4; ++i) roots[i] = rec_roots[i];
     count_coefs();
 }
 
