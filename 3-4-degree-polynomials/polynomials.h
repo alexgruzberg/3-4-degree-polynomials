@@ -31,8 +31,8 @@ class third_degree_polynomial : public polynomial
 {
 public:
     third_degree_polynomial();
-    third_degree_polynomial(float a, float b, float c); //constructor that receives roots
-    third_degree_polynomial(std::vector<float> rec_roots);
+    third_degree_polynomial(float a, float b, float c); //constructor that receives coefficients
+    third_degree_polynomial(std::vector<float> rec_roots); //constructor that receives roots
     ~third_degree_polynomial();
 
     std::vector<float> tiruneh();
@@ -47,8 +47,8 @@ class fourth_degree_polynomial : public polynomial
 {
 public:
     fourth_degree_polynomial();
-    fourth_degree_polynomial(float a, float b, float c, float d); //constructor that receives roots
-    fourth_degree_polynomial(std::vector<float> rec_roots);
+    fourth_degree_polynomial(float a,float b, float c, float d); //constructor that receives coefficients
+    fourth_degree_polynomial(std::vector<float> rec_roots); //constructor that receives roots
     ~fourth_degree_polynomial();
 protected:
     void count_coefs();

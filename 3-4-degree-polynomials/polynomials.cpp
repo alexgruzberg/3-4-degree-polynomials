@@ -88,13 +88,13 @@ third_degree_polynomial::third_degree_polynomial() : polynomial(3)
 
 third_degree_polynomial::third_degree_polynomial(float a, float b, float c) : polynomial(3)
 {
-    roots[0] = a; roots[1] = b; roots[2] = c;
-    count_coefs();
+    coefs[2] = a; coefs[1] = b; coefs[0] = c;
 }
 
 third_degree_polynomial::third_degree_polynomial(std::vector<float> rec_roots) : polynomial(3)
 {
     for (int i = 0; i < 3; ++i) roots[i] = rec_roots[i];
+    std::sort(roots.begin(), roots.end());
     count_coefs();
 }
 
@@ -123,13 +123,13 @@ fourth_degree_polynomial::fourth_degree_polynomial() : polynomial(4)
 
 fourth_degree_polynomial::fourth_degree_polynomial(float a, float b, float c, float d) : polynomial(4)
 {
-    roots[0] = a; roots[1] = b; roots[2] = c; roots[3] = d;
-    count_coefs();
+    coefs[3] = a; coefs[2] = b; coefs[1] = c; coefs[0] = d;
 }
 
 fourth_degree_polynomial::fourth_degree_polynomial(std::vector<float> rec_roots) : polynomial(4)
 {
     for (int i = 0; i < 4; ++i) roots[i] = rec_roots[i];
+    std::sort(roots.begin(), roots.end());
     count_coefs();
 }
 

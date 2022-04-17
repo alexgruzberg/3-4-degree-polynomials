@@ -31,8 +31,9 @@ int main()
         third_degree_polynomial P(random_roots);
         P.info();
         estimated_roots = P.tiruneh();
+        sort(estimated_roots.begin(), estimated_roots.end());
         for (auto v : estimated_roots) std::cout << v << " "; std::cout << std::endl;
-        // need to measure the error
+        std::cout << "error_max " << P.error_est_max(estimated_roots) << std::endl;
     }
 
 }
