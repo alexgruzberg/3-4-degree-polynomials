@@ -36,6 +36,8 @@ public:
     ~third_degree_polynomial();
 
     std::vector<float> tiruneh();
+    std::vector<float> cardon();
+    std::vector<float> tomas_co();
 protected:
     void count_coefs();
 };

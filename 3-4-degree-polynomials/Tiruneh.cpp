@@ -10,9 +10,9 @@ std::vector<float> third_degree_polynomial::tiruneh()
 	float Q = (-pow(coefs[2],2) / 3 + coefs[1]) / 3;
 	float R = -(pow(z, 3) + coefs[2] * pow(z, 2) + coefs[1] * z + coefs[0]) / 2;
 	float theta = acos(R / sqrt(pow(-Q, 3)));
-	std::vector<float> roots(3);
-	roots[0] = (2 * sqrt(-Q) * cos(theta / 3) + z);
-	roots[1] = (2 * sqrt(-Q) * cos((theta + 2 * M_PI) / 3) + z);
-	roots[2] = (2 * sqrt(-Q) * cos((theta + 4 * M_PI) / 3) + z);
-	return roots;
+	std::vector<float> est_roots(3);
+	est_roots[0] = (2 * sqrt(-Q) * cos(theta / 3) + z);
+	est_roots[1] = (2 * sqrt(-Q) * cos((theta + 2 * M_PI) / 3) + z);
+	est_roots[2] = (2 * sqrt(-Q) * cos((theta + 4 * M_PI) / 3) + z);
+	return est_roots;
 }

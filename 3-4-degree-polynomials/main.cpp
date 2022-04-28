@@ -30,10 +30,16 @@ int main()
             random_roots[j] = udist(rng) / 1e8;
         third_degree_polynomial P(random_roots);
         P.info();
-        estimated_roots = P.tiruneh();
+        estimated_roots = P.tomas_co();
         sort(estimated_roots.begin(), estimated_roots.end());
         for (auto v : estimated_roots) std::cout << v << " "; std::cout << std::endl;
         std::cout << "error_max " << P.error_est_max(estimated_roots) << std::endl;
     }
+    /*vector<float> random_roots({3,2,4});
+    third_degree_polynomial P(random_roots);
+    P.info();
+    vector<float> estimated_roots = P.cardon();
+    sort(estimated_roots.begin(), estimated_roots.end());
+    for (auto v : estimated_roots) std::cout << v << " "; std::cout << std::endl;*/
 
 }
