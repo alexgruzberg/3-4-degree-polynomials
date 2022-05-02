@@ -15,7 +15,8 @@ std::vector<float> third_degree_polynomial::cardon()
 	if (delta > 0)	//corresponding roots are all different
 	{
 		std::complex<double> H_c = (H, 0);
-		std::complex<double> phi_c = (pow((G + sqrt(delta)) / 2, 1 / 3), 0);
+		double re_phi_c = pow((G + sqrt(delta)), (float)1 / (float)3) / pow((float)2, (float)1 / (float)3);
+		std::complex<double> phi_c((double)re_phi_c, 0);
 		est_roots[0] = -phi_c.real() + H / phi_c.real();
 		est_roots[1] = (-w * phi_c + pow(w, 2) * H_c/ phi_c).real();
 		est_roots[2] = (-pow(w,2) * phi_c + w * H_c / phi_c).real();

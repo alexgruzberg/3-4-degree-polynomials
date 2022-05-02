@@ -24,29 +24,36 @@ int main()
     // estimating the error //
     vector<float> random_roots(3);
     vector<float> estimated_roots(3);
-    vector<float> error_est_sum(10000);
-    vector<float> error_est_max(10000);
-    for (int i = 0; i < 10000; ++i)
+    vector<float> error_est_sum(100000); float sum_avg = 0;
+    vector<float> error_est_max(100000); float max_avg = 0;
+    for (int i = 0; i < 100000; ++i)
     {
         for (int j = 0; j < 3; ++j)
             random_roots[j] = udist(rng) / 1e8;
         third_degree_polynomial P(random_roots);
         //P.info();
-        estimated_roots = P.cardon();
-        sort(estimated_roots.begin(), estimated_roots.end());
-        error_est_sum[i] = P.error_est_sum(estimated_roots);
-        error_est_max[i] = P.error_est_max(estimated_roots);
+        estimated_roots = P.tomas_co();
+        if (!isnan(estimated_roots.back())) //when we divide very small float it becomes nan and ruins the whole estimation process
+        {
+            sort(estimated_roots.begin(), estimated_roots.end());
+            error_est_sum[i] = P.error_est_sum(estimated_roots);
+            sum_avg += error_est_sum[i];
+            error_est_max[i] = P.error_est_max(estimated_roots);
+            max_avg += error_est_max[i];
+        }
     }
     sort(error_est_sum.begin(), error_est_sum.end());
     cout << "Error estimation sum| x-x'|" << std::endl;
     cout << "Min : " << error_est_sum[0] << std::endl;
-    cout << "Max : " << error_est_sum[9999] << std::endl;
-    cout << "Median : " << error_est_sum[4999] << std::endl << std::endl;
+    cout << "Max : " << error_est_sum.back() << std::endl;
+    sum_avg /= 10000; cout << "Average : " << sum_avg << std::endl;
+    cout << "Median : " << error_est_sum[49999] << std::endl << std::endl;
 
     sort(error_est_max.begin(), error_est_max.end());
     cout << "Error estimation sum( | x-x'| / max(x,x') )" << std::endl;
     cout << "Min : " << error_est_max[0] << std::endl;
-    cout << "Max : " << error_est_max[9999] << std::endl;
-    cout << "Median : " << error_est_max[4999] << std::endl;
+    cout << "Max : " << error_est_max.back() << std::endl;
+    max_avg /= 10000; cout << "Average : " << max_avg << std::endl;
+    cout << "Median : " << error_est_max[49999] << std::endl;
     
 }
