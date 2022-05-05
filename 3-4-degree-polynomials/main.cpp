@@ -1,10 +1,7 @@
-﻿#include "polynomials.h"
+﻿#include "finding_roots.h"
 #include <random>
 #include <chrono>
 #include <numeric>
-#include "cardon.cpp"
-#include "tiruneh.cpp"
-#include "tomas_co.cpp"
 using namespace std;
 
 //setting the range for the RNG//

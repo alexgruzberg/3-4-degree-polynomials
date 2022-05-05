@@ -32,5 +32,8 @@
     <ClInclude Include="polynomials.h">
       <Filter>Файлы заголовков</Filter>
     </ClInclude>
+    <ClInclude Include="finding_roots.h">
+      <Filter>Файлы заголовков</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

@@ -145,6 +145,7 @@
     <ClCompile Include="tomas_co.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="finding_roots.h" />
     <ClInclude Include="polynomials.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
