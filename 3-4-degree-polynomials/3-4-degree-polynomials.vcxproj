@@ -141,7 +141,6 @@
   <ItemGroup>
     <ClCompile Include="cardon.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="polynomials.cpp" />
     <ClCompile Include="tiruneh.cpp" />
     <ClCompile Include="tomas_co.cpp" />
   </ItemGroup>

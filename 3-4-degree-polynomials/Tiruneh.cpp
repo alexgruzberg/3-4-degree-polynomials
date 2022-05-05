@@ -5,15 +5,19 @@
 //	x^3 + a x^2 + b x + c
 
 template<typename T>
-std::vector<T> third_degree_polynomial<T>::tiruneh()
+std::vector<T> tiruneh(third_degree_polynomial<T> P)
 {
-	float z = -this->coefs[2]/3;
-	float Q = (-pow(this->coefs[2],2) / 3 + this->coefs[1]) / 3;
-	float R = -(pow(z, 3) + this->coefs[2] * pow(z, 2) + this->coefs[1] * z + this->coefs[0]) / 2;
+	float one_third = 1.0 / 3.0; float half = 1.0 / 2.0;
+
+	std::vector<T> coefs = P.get_coefs();
+	float z = -coefs[2] * one_third;
+	float Q = (-coefs[2] * coefs[2] * one_third + coefs[1]) * one_third;
+	float R = -(pow(z, 3) + coefs[2] * z * z + coefs[1] * z + coefs[0]) * half;
 	float theta = acos(R / sqrt(pow(-Q, 3)));
 	std::vector<T> est_roots(3);
-	est_roots[0] = (2 * sqrt(-Q) * cos(theta / 3) + z);
-	est_roots[1] = (2 * sqrt(-Q) * cos((theta + 2 * M_PI) / 3) + z);
-	est_roots[2] = (2 * sqrt(-Q) * cos((theta + 4 * M_PI) / 3) + z);
+	float two_sqrt_q = 2 * sqrt(-Q);
+	est_roots[0] = (two_sqrt_q * cos(theta * one_third) + z);
+	est_roots[1] = (two_sqrt_q * cos((theta + 2 * M_PI) * one_third) + z);
+	est_roots[2] = (two_sqrt_q * cos((theta + 4 * M_PI) * one_third) + z);
 	return est_roots;
 }

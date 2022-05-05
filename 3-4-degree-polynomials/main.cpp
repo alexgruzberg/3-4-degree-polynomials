@@ -2,6 +2,9 @@
 #include <random>
 #include <chrono>
 #include <numeric>
+#include "cardon.cpp"
+#include "tiruneh.cpp"
+#include "tomas_co.cpp"
 using namespace std;
 
 //setting the range for the RNG//
@@ -32,7 +35,7 @@ int main()
             random_roots[j] = udist(rng) / 1e8;
         third_degree_polynomial<float> P(random_roots);
         //P.info();
-        estimated_roots = P.tomas_co();
+        estimated_roots = tomas_co(P);
         if (!isnan(estimated_roots.back())) //when we divide very small float it becomes nan and ruins the whole estimation process
         {
             sort(estimated_roots.begin(), estimated_roots.end());
