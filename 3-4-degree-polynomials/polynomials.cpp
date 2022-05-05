@@ -1,76 +1,86 @@
-#include "polynomials.h"
+#pragma once
+#include "polynomials.h"    
 
 ///                             ///
 ///         POLYNOMIAL          ///
 ///                             ///
 
-polynomial::polynomial() : coefs(0), roots(0)
+template<typename T>
+polynomial<T>::polynomial() : coefs(0), roots(0)
 {
 }
 
-polynomial::polynomial(int degree) : coefs(degree, 0), roots(degree, 0)
+template<typename T>
+polynomial<T>::polynomial(int degree) : coefs(degree, 0), roots(degree, 0)
 {
 }
 
-polynomial::~polynomial()
+template<typename T>
+polynomial<T>::~polynomial()
 {
 }
 
 
 
-float polynomial::error_est_sum(std::vector<float> est_roots)
+template<typename T>
+float polynomial<T>::error_est_sum(std::vector<T> est_roots)
 {
     //if (est_roots.size()!=roots.size())
     //  exception
     //else
     float est = 0;
-    for (int i = 0; i < roots.size(); ++i)
-        est += abs(est_roots[i] - roots[i]);
+    for (int i = 0; i < this->roots.size(); ++i)
+        est += abs(est_roots[i] - this->roots[i]);
     return est;
 }
 
-float polynomial::error_est_max(std::vector<float> est_roots)
+template<typename T>
+float polynomial<T>::error_est_max(std::vector<T> est_roots)
 {
     //if (est_roots.size()!=roots.size())
     //  exception
     //else
     float est = 0;
-    for (int i = 0; i < roots.size(); ++i)
-        est += abs(est_roots[i] - roots[i]) / std::max(est_roots[i], roots[i]);
+    for (int i = 0; i < this->roots.size(); ++i)
+        est += abs(est_roots[i] - this->roots[i]) / std::max(est_roots[i], this->roots[i]);
     return est;
 }
 
-void polynomial::info()
+template<typename T>
+void polynomial<T>::info()
 {
-    std::cout << "~~~~~~~~~~~~~~~~" << std::endl << "Degree of the polynomial: " << roots.size();
-    std::cout << std::endl << "The polynomial: x^" << coefs.size();
-    for (int i = coefs.size() - 1; i > 0; --i)
+    std::cout << "~~~~~~~~~~~~~~~~" << std::endl << "Degree of the polynomial: " << this->roots.size();
+    std::cout << std::endl << "The polynomial: x^" << this->coefs.size();
+    for (int i = this->coefs.size() - 1; i > 0; --i)
     {
-        if (coefs[i] < 0) std::cout << " - " << std::abs(coefs[i]);
-        else std::cout << " + " << coefs[i];
+        if (coefs[i] < 0) std::cout << " - " << std::abs(this->coefs[i]);
+        else std::cout << " + " << this->coefs[i];
         std::cout << "*x^" << i;
     }
-    if (coefs[0] < 0) std::cout << " - " << std::abs(coefs[0]);
-    else std::cout << " + " << coefs[0];
+    if (this->coefs[0] < 0) std::cout << " - " << std::abs(this->coefs[0]);
+    else std::cout << " + " << this->coefs[0];
     std::cout << std::endl << "Roots of the polynomial: ";
-    for (auto v : roots)
+    for (auto v : this->roots)
     {
         std::cout << v << ", ";
     }
     std::cout << std::endl << "~~~~~~~~~~~~~~~~" << std::endl;
 }
 
-std::vector<float> polynomial::get_coefs()
+template<typename T>
+std::vector<T> polynomial<T>::get_coefs()
 {
-    return coefs;
+    return this->coefs;
 }
 
-std::vector<float> polynomial::get_roots()
+template<typename T>
+std::vector<T> polynomial<T>::get_roots()
 {
     return roots;
 }
 
-void polynomial::count_coefs()
+template<typename T>
+void polynomial<T>::count_coefs()
 {
 }
 
@@ -82,31 +92,36 @@ void polynomial::count_coefs()
 
 
 
-third_degree_polynomial::third_degree_polynomial() : polynomial(3)
+template<typename T>
+third_degree_polynomial<T>::third_degree_polynomial() : polynomial<T>(3)
 {
 }
 
-third_degree_polynomial::third_degree_polynomial(float a, float b, float c) : polynomial(3)
+template<typename T>
+third_degree_polynomial<T>::third_degree_polynomial(float a, float b, float c) : polynomial<T>(3)
 {
-    coefs[2] = a; coefs[1] = b; coefs[0] = c;
+    this->coefs[2] = a; this->coefs[1] = b; this->coefs[0] = c;
 }
 
-third_degree_polynomial::third_degree_polynomial(std::vector<float> rec_roots) : polynomial(3)
+template<typename T>
+third_degree_polynomial<T>::third_degree_polynomial(std::vector<T> rec_roots) : polynomial<T>(3)
 {
-    for (int i = 0; i < 3; ++i) roots[i] = rec_roots[i];
-    std::sort(roots.begin(), roots.end());
+    for (int i = 0; i < 3; ++i) this->roots[i] = rec_roots[i];
+    std::sort(this->roots.begin(), this->roots.end());
     count_coefs();
 }
 
-third_degree_polynomial::~third_degree_polynomial()
+template<typename T>
+third_degree_polynomial<T>::~third_degree_polynomial()
 {
 }
 
-void third_degree_polynomial::count_coefs()
+template<typename T>
+void third_degree_polynomial<T>::count_coefs()
 {
-    coefs[0] = -(roots[0] * roots[1] * roots[2]);
-    coefs[1] = roots[0] * roots[1] + roots[0] * roots[2] + roots[1] * roots[2];
-    coefs[2] = -(roots[0] + roots[1] + roots[2]);
+    this->coefs[0] = -(this->roots[0] * this->roots[1] * this->roots[2]);
+    this->coefs[1] = this->roots[0] * this->roots[1] + this->roots[0] * this->roots[2] + this->roots[1] * this->roots[2];
+    this->coefs[2] = -(this->roots[0] + this->roots[1] + this->roots[2]);
 }
 
 
@@ -117,30 +132,37 @@ void third_degree_polynomial::count_coefs()
 
 
 
-fourth_degree_polynomial::fourth_degree_polynomial() : polynomial(4)
+template<typename T>
+fourth_degree_polynomial<T>::fourth_degree_polynomial() : polynomial<T>(4)
 {
 }
 
-fourth_degree_polynomial::fourth_degree_polynomial(float a, float b, float c, float d) : polynomial(4)
+template<typename T>
+fourth_degree_polynomial<T>::fourth_degree_polynomial(float a, float b, float c, float d) : polynomial<T>(4)
 {
-    coefs[3] = a; coefs[2] = b; coefs[1] = c; coefs[0] = d;
+    this->coefs[3] = a; this->coefs[2] = b; this->coefs[1] = c; this->coefs[0] = d;
 }
 
-fourth_degree_polynomial::fourth_degree_polynomial(std::vector<float> rec_roots) : polynomial(4)
+template<typename T>
+fourth_degree_polynomial<T>::fourth_degree_polynomial(std::vector<T> rec_roots) : polynomial<T>(4)
 {
-    for (int i = 0; i < 4; ++i) roots[i] = rec_roots[i];
-    std::sort(roots.begin(), roots.end());
+    for (int i = 0; i < 4; ++i) this->roots[i] = rec_roots[i];
+    std::sort(this->roots.begin(), this->roots.end());
     count_coefs();
 }
 
-fourth_degree_polynomial::~fourth_degree_polynomial()
+template<typename T>
+fourth_degree_polynomial<T>::~fourth_degree_polynomial()
 {
 }
 
-void fourth_degree_polynomial::count_coefs()
+template<typename T>
+void fourth_degree_polynomial<T>::count_coefs()
 {
-    coefs[0] = roots[0] * roots[1] * roots[2] * roots[3];
-    coefs[1] = -(roots[0] * roots[1] * roots[2] + roots[0] * roots[1] * roots[3] + roots[0] * roots[2] * roots[3] + roots[1] * roots[2] * roots[3]);
-    coefs[2] = roots[0] * roots[1] + roots[0] * roots[2] + roots[0] * roots[3] + roots[1] * roots[2] + roots[1] * roots[3] + roots[2] * roots[3];
-    coefs[3] = -(roots[0] + roots[1] + roots[2] + roots[3]);
+    this->coefs[0] = this->roots[0] * this->roots[1] * this->roots[2] * this->roots[3];
+    this->coefs[1] = -(this->roots[0] * this->roots[1] * this->roots[2] + this->roots[0] * this->roots[1] * this->roots[3] + this->roots[0] * this->roots[2] * 
+                        this->roots[3] + this->roots[1] * this->roots[2] * this->roots[3]);
+    this->coefs[2] = this->roots[0] * this->roots[1] + this->roots[0] * this->roots[2] + this->roots[0] * this->roots[3] + this->roots[1] * this->roots[2] + 
+                        this->roots[1] * this->roots[3] + this->roots[2] * this->roots[3];
+    this->coefs[3] = -(this->roots[0] + this->roots[1] + this->roots[2] + this->roots[3]);
 }

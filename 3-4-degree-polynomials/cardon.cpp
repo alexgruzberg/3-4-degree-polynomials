@@ -5,10 +5,11 @@
 using namespace std::complex_literals;
 //	x^3 + 3 a x^2 + 3 b x + c
 
-std::vector<float> third_degree_polynomial::cardon()
+template<typename T>
+std::vector<T> third_degree_polynomial<T>::cardon()
 {
-	float a = coefs[2] / 3; float b = coefs[1] / 3;
-	float H = b - pow(a,2); float G = 2 * pow(a, 3) - 3 * a * b + coefs[0];
+	float a = this->coefs[2] / 3; float b = this->coefs[1] / 3;
+	float H = b - pow(a,2); float G = 2 * pow(a, 3) - 3 * a * b + this->coefs[0];
 	float delta = pow(G, 2) + 4 * pow(H, 3);
 	std::complex<double> w(-0.5, sqrt(3) / 2);
 	std::vector<float> est_roots(3);

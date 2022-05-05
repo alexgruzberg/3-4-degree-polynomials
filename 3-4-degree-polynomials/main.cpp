@@ -5,7 +5,7 @@
 using namespace std;
 
 //setting the range for the RNG//
-uniform_int_distribution<mt19937::result_type> udist(0,1e8);
+uniform_int_distribution<mt19937::result_type> udist(0,(float)1e8);
 mt19937 rng;
 
 
@@ -26,11 +26,11 @@ int main()
     vector<float> estimated_roots(3);
     vector<float> error_est_sum(100000); float sum_avg = 0;
     vector<float> error_est_max(100000); float max_avg = 0;
-    for (int i = 0; i < 100000; ++i)
+    for (int i = 0; i < 100; ++i)
     {
         for (int j = 0; j < 3; ++j)
             random_roots[j] = udist(rng) / 1e8;
-        third_degree_polynomial P(random_roots);
+        third_degree_polynomial<float> P(random_roots);
         //P.info();
         estimated_roots = P.tomas_co();
         if (!isnan(estimated_roots.back())) //when we divide very small float it becomes nan and ruins the whole estimation process
