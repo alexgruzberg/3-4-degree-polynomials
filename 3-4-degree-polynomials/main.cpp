@@ -58,7 +58,7 @@ int main()
 
 
     // estimating the error for polynomial with a complex conjugate pair //
-    vector<complex<float>> random_roots(3);
+    /*vector<complex<float>> random_roots(3);
     vector<complex<float>> estimated_roots(3);
     vector<float> error_est_sum(10000); float sum_avg = 0;
     vector<float> error_est_max(10000); float max_avg = 0;
@@ -83,5 +83,11 @@ int main()
     cout << "Min : " << error_est_sum[0] << std::endl;
     cout << "Max : " << error_est_sum.back() << std::endl;
     sum_avg /= 10000; cout << "Average : " << sum_avg << std::endl;
-    cout << "Median : " << error_est_sum[4999] << std::endl << std::endl;
+    cout << "Median : " << error_est_sum[4999] << std::endl << std::endl;*/
+
+
+    vector<float> vec({1.0,2.0,3.0,4.0});
+    fourth_degree_polynomial<float> Q(vec); Q.info();
+    //vec = ferrari(Q);
+    for (auto v : vec) cout << v << "    " ;
 }
