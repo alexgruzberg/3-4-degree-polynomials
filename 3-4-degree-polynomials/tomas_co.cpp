@@ -10,12 +10,29 @@ std::vector<T> tomas_co(third_degree_polynomial<T> P)
 	float one_third = 1.0 / 3.0; float one_twentyseventh = 1.0 / 27.0;
 
 	std::vector<float> coefs = P.get_coefs();
-	float p = (3 * coefs[1] - coefs[2] * coefs[2]) * one_third;
-	float q = (2 * pow(coefs[2], 3) - 9 * coefs[2] * coefs[1] + 27 * coefs[0]) * one_twentyseventh;
+	float d = coefs[0], c = coefs[1], b = coefs[2];
+
+	float bb = b * b;
+	float p = (3 * c - bb) * one_third;
+	float q = (b * (2 * bb - 9 * c) + 27 * d) * one_twentyseventh;
+
 	std::vector<T> est_roots(3);
-	float A = 2 * sqrt(-p * one_third); //p is less than 0
-	float phi = acos((3 * q) / (A * p));
-	float B = -coefs[2] * one_third;
+
+	float p_one_third = p * one_third;
+	if (p_one_third > 0)
+		throw sqrt_of_negative_number();
+
+	float A = 2 * sqrt(-p_one_third); //p is less than 0
+
+	float acos_arg = (3 * q) / (A * p);
+	if (isnan(acos_arg))
+		throw division_by_zero();
+	if (acos_arg > 1 || acos_arg < -1)
+		throw arccos_out_of_range();
+
+	float phi = acos(acos_arg);
+	float B = -b * one_third;
+
 	for (int i = 0; i < 3; ++i)
 		est_roots[i] = A * cos((phi + 2*i*M_PI) * one_third) + B;
 	
@@ -28,21 +45,45 @@ std::vector<std::complex<T>> tomas_co(third_degree_polynomial<std::complex<T>> P
 	float one_third = 1.0 / 3.0; float one_twentyseventh = 1.0 / 27.0; float half = 1.0 / 2.0;
 
 	std::vector<float> coefs = P.get_coefs();
-	float p = (3 * coefs[1] - coefs[2] * coefs[2]) * one_third;
-	float q = (2 * pow(coefs[2], 3) - 9 * coefs[2] * coefs[1] + 27 * coefs[0]) * one_twentyseventh;
+	float d = coefs[0], c = coefs[1], b = coefs[2];
+
+	float bb = b * b;
+	float p = (3 * c - b * b) * one_third;
+	float q = (b * (2 * bb - 9 * c) + 27 * d) * one_twentyseventh;
+
 	std::vector<std::complex<T>> est_roots(3);
 	if (p < 0)
 	{
-		float A = 2 * sqrt(-p * one_third); //p is less than 0
-		float phi = acos((3 * q) / (A * p));
-		float B = -coefs[2] * one_third;
+		float p_one_third = p * one_third;
+		if (p_one_third > 0)
+			throw sqrt_of_negative_number();
+
+		float A = 2 * sqrt(-p_one_third); //p is less than 0
+
+		float acos_arg = (3 * q) / (A * p);
+
+		if (isnan(acos_arg))
+			throw division_by_zero();
+		if (acos_arg > 1 || acos_arg < -1)
+			throw arccos_out_of_range();
+
+		float phi = acos(acos_arg);
+		float B = -b * one_third;
 		for (int i = 0; i < 3; ++i)
 			est_roots[i] = A * cos((phi + 2 * i * M_PI) * one_third) + B;
 	}
 	else if (p > 0)
 	{
+		if (p < 0)
+			throw sqrt_of_negative_number();
+
 		float A = 2 * sqrt(p * one_third);
-		float phi = asinh(3 * q / (A * p));
+
+		float asinh_arg = (3 * q) / (A * p);
+		if (isnan(asinh_arg))
+			throw division_by_zero();
+
+		float phi = asinh(asinh_arg);
 		est_roots[0] = est_roots[1] = std::complex<T>(0,0);
 		est_roots[2] = std::complex<T>(-3 * A * half * sinh(phi * one_third),0);
 	}

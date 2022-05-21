@@ -1,8 +1,10 @@
 #pragma once
 #define _USE_MATH_DEFINES
 
-#include <vector>
+#include "exceptions.h"
+
 #include <iostream>
+#include <vector>
 #include <algorithm>
 #include <math.h>
 #include <complex>

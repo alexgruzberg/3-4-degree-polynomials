@@ -140,12 +140,12 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="cardon.cpp" />
-    <ClCompile Include="ferrari.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="tiruneh.cpp" />
     <ClCompile Include="tomas_co.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="exceptions.h" />
     <ClInclude Include="finding_roots.h" />
     <ClInclude Include="polynomials.h" />
   </ItemGroup>

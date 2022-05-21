@@ -1,6 +1,7 @@
 ﻿#include "finding_roots.h"
 #include <random>
 #include <chrono>
+
 using namespace std;
 
 //setting the range for the RNG//
@@ -31,14 +32,29 @@ int main()
             random_roots[j] = udist(rng) / (float)1e8;
         third_degree_polynomial<float> P(random_roots);
         //P.info();
-        estimated_roots = tomas_co(P);
-        if (!isnan(estimated_roots.back())) //when we divide very small float it becomes nan and ruins the whole estimation process
+        try
         {
-            sort(estimated_roots.begin(), estimated_roots.end());
-            error_est_sum[i] = P.error_est_sum(estimated_roots);
-            sum_avg += error_est_sum[i];
-            error_est_max[i] = P.error_est_max(estimated_roots);
-            max_avg += error_est_max[i];
+        estimated_roots = tomas_co(P);
+        sort(estimated_roots.begin(), estimated_roots.end());
+        error_est_sum[i] = P.error_est_sum(estimated_roots);
+        sum_avg += error_est_sum[i];
+        error_est_max[i] = P.error_est_max(estimated_roots);
+        max_avg += error_est_max[i];
+        }
+        catch (division_by_zero& e)
+        {
+            std::cout << "exception caught" << std::endl;
+            std::cout << e.what() << std::endl;
+        }
+        catch (sqrt_of_negative_number& e)
+        {
+            std::cout << "exception caught" << std::endl;
+            std::cout << e.what() << std::endl;
+        }
+        catch (arccos_out_of_range& e)
+        {
+            std::cout << "exception caught" << std::endl;
+            std::cout << e.what() << std::endl;
         }
     }
     sort(error_est_sum.begin(), error_est_sum.end());
@@ -58,7 +74,7 @@ int main()
 
 
     // estimating the error for polynomial with a complex conjugate pair //
-    /*vector<complex<float>> random_roots(3);
+    vector<complex<float>> random_roots(3);
     vector<complex<float>> estimated_roots(3);
     vector<float> error_est_sum(10000); float sum_avg = 0;
     vector<float> error_est_max(10000); float max_avg = 0;
@@ -70,12 +86,26 @@ int main()
         random_roots[2] = complex<float>(udist(rng) / (float)1e8,0);
         third_degree_polynomial<complex<float>> P(random_roots);
         //P.info();
-        estimated_roots = tiruneh(P);
-        if (!isnan(estimated_roots.back().real()) && !isnan(estimated_roots.back().imag())) //when we divide very small float it becomes nan and ruins the whole estimation process
+        try 
         {
-            //sort(estimated_roots.begin(), estimated_roots.end());
+            estimated_roots = tiruneh(P);
             error_est_sum[i] = P.error_est_sum(estimated_roots);
             sum_avg += error_est_sum[i];
+        }
+        catch (division_by_zero& e)
+        {
+            std::cout << "exception caught" << std::endl;
+            std::cout << e.what() << std::endl;
+        }
+        catch (sqrt_of_negative_number& e)
+        {
+            std::cout << "exception caught" << std::endl;
+            std::cout << e.what() << std::endl;
+        }
+        catch (arccos_out_of_range& e)
+        {
+            std::cout << "exception caught" << std::endl;
+            std::cout << e.what() << std::endl;
         }
     }
     sort(error_est_sum.begin(), error_est_sum.end());
@@ -83,11 +113,5 @@ int main()
     cout << "Min : " << error_est_sum[0] << std::endl;
     cout << "Max : " << error_est_sum.back() << std::endl;
     sum_avg /= 10000; cout << "Average : " << sum_avg << std::endl;
-    cout << "Median : " << error_est_sum[4999] << std::endl << std::endl;*/
-
-
-    vector<float> vec({1.0,2.0,3.0,4.0});
-    fourth_degree_polynomial<float> Q(vec); Q.info();
-    //vec = ferrari(Q);
-    for (auto v : vec) cout << v << "    " ;
+    cout << "Median : " << error_est_sum[4999] << std::endl << std::endl;
 }
