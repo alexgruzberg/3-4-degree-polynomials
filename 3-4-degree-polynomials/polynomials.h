@@ -73,9 +73,8 @@ std::vector<T> polynomial<T>::get_roots()
 template <typename T>
 float polynomial<T>::error_est_sum(std::vector<T> est_roots)
 {
-    //if (est_roots.size()!=roots.size())
-    //  exception
-    //else
+    if (est_roots.size() != roots.size())
+        throw unexcpected_number_of_roots();
     float est = 0;
     for (int i = 0; i < this->roots.size(); ++i)
         est += abs(est_roots[i] - this->roots[i]);
@@ -85,12 +84,11 @@ float polynomial<T>::error_est_sum(std::vector<T> est_roots)
 template <typename T>
 float polynomial<T>::error_est_max(std::vector<T> est_roots)
 {
-    //if (est_roots.size()!=roots.size())
-    //  exception
-    //else
+    if (est_roots.size() != roots.size())
+        throw unexcpected_number_of_roots();
     float est = 0;
     for (int i = 0; i < this->roots.size(); ++i)
-        est += abs(est_roots[i] - this->roots[i]) / std::max(est_roots[i], this->roots[i]);
+        est += abs(est_roots[i] - this->roots[i]) / std::max(abs(est_roots[i]), abs(this->roots[i]));
     return est;
 }
 

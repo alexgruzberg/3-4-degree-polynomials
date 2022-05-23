@@ -1,4 +1,6 @@
 //CARDON’S METHOD TO SOLVE A CUBIC EQUATION
+//http://mgscience.ac.in/wp-content/uploads/2020/07/K-K-VANIYA-SEM-2.pdf
+
 #include "polynomials.h"
 #include <complex>
 using namespace std::complex_literals;
@@ -23,14 +25,14 @@ std::vector<T> cardon(third_degree_polynomial<T> P)
 	if (delta > 0)	//corresponding roots are all real and different
 	{
 		std::complex<float> H_c = (H, 0);
-		float re_phi_c = cbrt(G + sqrt(delta)) / cbrt(2);
+		float re_phi_c = cbrt((G + sqrt(delta)) * 0.5);
 		std::complex<float> phi_c(re_phi_c, 0);
 
 		float H_div_re_phi_c = H / re_phi_c;
-		if (isnan(H_div_re_phi_c))
+		if (isinf(H_div_re_phi_c) || isnan(H_div_re_phi_c))
 			throw division_by_zero();
 		std::complex<float> H_div_phi = H_c / phi_c;
-		if (isnan(abs(H_div_phi)))
+		if (isinf(abs(H_div_phi)) || isnan(abs(H_div_phi)))
 			throw division_by_zero();
 
 		est_roots[0] = -re_phi_c + H_div_re_phi_c;
@@ -48,7 +50,7 @@ std::vector<T> cardon(third_degree_polynomial<T> P)
 		std::complex<float> H_c(H, 0);
 		float imag_delta = sqrt(abs(delta)) * 0.5;
 		std::complex<float> phi_c(G * 0.5, imag_delta);
-		phi_c = cbrt(phi_c);
+		phi_c = pow(phi_c, one_third);	//there is no cbrt<complex<T>>
 		est_roots[0] = (-phi_c + H_c / phi_c).real();
 		est_roots[1] = ( w * (-phi_c + w * H_c / phi_c)).real();
 		est_roots[2] = ( w * (-w * phi_c + H_c / phi_c)).real();
@@ -77,11 +79,11 @@ std::vector<std::complex<T>> cardon(third_degree_polynomial<std::complex<T>> P)
 	if (delta > 0)	//corresponding roots are all real and different
 	{
 		std::complex<float> H_c(H, 0);
-		float re_phi_c = cbrt(G + sqrt(delta)) / cbrt(2);
+		float re_phi_c = cbrt((G + sqrt(delta)) * 0.5);
 		std::complex<float> phi_c(re_phi_c, 0);
 
 		std::complex<float> H_div_phi = H_c / phi_c;
-		if (isnan(abs(H_div_phi)))
+		if (isinf(abs(H_div_phi)) || isnan(abs(H_div_phi)))
 			throw division_by_zero();
 
 		est_roots[0] = w * (-w * phi_c + H_div_phi);
@@ -99,10 +101,10 @@ std::vector<std::complex<T>> cardon(third_degree_polynomial<std::complex<T>> P)
 		std::complex<float> H_c(H, 0);
 		float imag_delta = sqrt(abs(delta)) * 0.5;
 		std::complex<float> phi_c(G * 0.5, imag_delta);
-		phi_c = pow(phi_c, one_third);		//there is no cbrt<complex<T>>
+		phi_c = pow(phi_c, one_third);		
 
 		std::complex<float> H_div_phi = H_c / phi_c;
-		if (isnan(abs(H_div_phi)))
+		if (isinf(abs(H_div_phi)) || isnan(abs(H_div_phi)))
 			throw division_by_zero();
 
 		est_roots[0] = w * (-w * phi_c + H_div_phi);

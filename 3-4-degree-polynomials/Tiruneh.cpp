@@ -1,5 +1,5 @@
 //A simplified expression for the solution of cubic polynomial equations using function evaluation-Tiruneh-2020//
-// https://arxiv.org/abs/2002.06976 //
+// https://www.researchgate.net/publication/339325448_A_simplified_expression_for_the_solution_of_cubic_polynomial_equations_using_function_evaluation //
 
 #include "polynomials.h"
 //	x^3 + a x^2 + b x + c
@@ -23,17 +23,22 @@ std::vector<T> tiruneh(third_degree_polynomial<T> P)
 		return est_roots;
 	}
 
-	float minus_Q_cube = -Q * Q * Q;
-
-	if (isnan(minus_Q_cube))
-		throw division_by_zero();
-	if (minus_Q_cube < 0)
+	if (Q > 0)
 		throw sqrt_of_negative_number();
 
-	float theta = acos(R / sqrt(minus_Q_cube));
+	float sqrt_minus_cube = sqrt(-Q);
+
+	float arg = R / (-Q * sqrt_minus_cube);
+
+	if (isinf(arg) || isnan(arg))
+		throw division_by_zero();
+	if (arg < -1 || arg > 1)
+		throw arccos_out_of_range();
+
+	float theta = acos(arg);
 	std::vector<T> est_roots(3);
 
-	float two_sqrt_q = 2 * sqrt(-Q);
+	float two_sqrt_q = 2 * sqrt_minus_cube;
 	est_roots[0] = (two_sqrt_q * cos(theta * one_third) + z);
 	est_roots[1] = (two_sqrt_q * cos((theta + 2 * M_PI) * one_third) + z);
 	est_roots[2] = (two_sqrt_q * cos((theta + 4 * M_PI) * one_third) + z);
@@ -55,17 +60,23 @@ std::vector<std::complex<T>> tiruneh(third_degree_polynomial<std::complex<T>> P)
 
 	std::vector<std::complex<T>> est_roots(3);
 
-	float Q_cube = Q * Q * Q;
-	float D = Q_cube + R * R;
+	float D = Q * Q * Q + R * R;
 	if (D < 0)
 	{
-		if (isnan(Q_cube))
-			throw division_by_zero();
-		if (Q_cube > 0)
+		if (Q > 0)
 			throw sqrt_of_negative_number();
 
-		float theta = acos(R / sqrt(-Q_cube));
-		float two_sqrt_q = 2 * sqrt(-Q);
+		float sqrt_minus_cube = sqrt(-Q);
+
+		float arg = R / (-Q * sqrt_minus_cube);
+
+		if (isinf(arg) || isnan(arg))
+			throw division_by_zero();
+		if (arg < -1 || arg > 1)
+			throw arccos_out_of_range();
+
+		float theta = acos(arg);
+		float two_sqrt_q = 2 * sqrt_minus_cube;
 		est_roots[0] = (two_sqrt_q * cos(theta * one_third) + z);
 		est_roots[1] = (two_sqrt_q * cos((theta + 2 * M_PI) * one_third) + z);
 		est_roots[2] = (two_sqrt_q * cos((theta + 4 * M_PI) * one_third) + z);
