@@ -51,12 +51,18 @@ std::vector<T> cardon(third_degree_polynomial<T> P)
 		float imag_delta = sqrt(abs(delta)) * 0.5;
 		std::complex<float> phi_c(G * 0.5, imag_delta);
 		phi_c = pow(phi_c, one_third);	//there is no cbrt<complex<T>>
-		est_roots[0] = (-phi_c + H_c / phi_c).real();
-		est_roots[1] = ( w * (-phi_c + w * H_c / phi_c)).real();
-		est_roots[2] = ( w * (-w * phi_c + H_c / phi_c)).real();
+
+		std::complex<float> H_div_phi_c = H_c / phi_c;
+		if (isinf(abs(H_div_phi_c)) || isnan(abs(H_div_phi_c)))
+			throw division_by_zero();
+
+		est_roots[0] = (-phi_c + H_div_phi_c).real();
+		est_roots[1] = ( w * (-phi_c + w * H_div_phi_c)).real();
+		est_roots[2] = ( w * (-w * phi_c + H_div_phi_c)).real();
 	}
 	for (int i = 0; i < 3; ++i)
 		est_roots[i] = est_roots[i] - b;
+	sort(est_roots.begin(), est_roots.end());
 	return est_roots;
 }
 

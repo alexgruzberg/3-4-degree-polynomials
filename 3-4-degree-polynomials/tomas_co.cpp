@@ -33,12 +33,15 @@ std::vector<T> tomas_co(third_degree_polynomial<T> P)
 	if (acos_arg > 1 || acos_arg < -1)
 		throw invalid_types_of_complex();
 
-	float phi = acos(acos_arg);
+	float third_phi = acos(acos_arg) * one_third;
 	float B = -b * one_third;
+	float two_third_pi = 2 * M_PI * one_third;
 
 	for (int i = 0; i < 3; ++i)
-		est_roots[i] = A * cos((phi + 2*i*M_PI) * one_third) + B;
+		est_roots[i] = A * cos(third_phi + i * two_third_pi) + B;
 	
+	sort(est_roots.begin(), est_roots.end());
+
 	return est_roots;
 }
 
@@ -68,10 +71,12 @@ std::vector<std::complex<T>> tomas_co(third_degree_polynomial<std::complex<T>> P
 		if (acos_arg > 1 || acos_arg < -1)
 			throw invalid_types_of_complex();
 
-		float phi = acos(acos_arg);
+		float third_phi = acos(acos_arg) * one_third;
 		float B = -b * one_third;
+		float two_third_pi = 2 * M_PI * one_third;
+
 		for (int i = 0; i < 3; ++i)
-			est_roots[i] = A * cos((phi + 2 * i * M_PI) * one_third) + B;
+			est_roots[i] = A * cos(third_phi + i * two_third_pi) + B;
 	}
 	else if (p > 0)
 	{

@@ -35,13 +35,15 @@ std::vector<T> tiruneh(third_degree_polynomial<T> P)
 	if (arg < -1 || arg > 1)
 		throw arccos_out_of_range();
 
-	float theta = acos(arg);
 	std::vector<T> est_roots(3);
 
+	float third_theta = acos(arg) * one_third;
 	float two_sqrt_q = 2 * sqrt_minus_cube;
-	est_roots[0] = (two_sqrt_q * cos(theta * one_third) + z);
-	est_roots[1] = (two_sqrt_q * cos((theta + 2 * M_PI) * one_third) + z);
-	est_roots[2] = (two_sqrt_q * cos((theta + 4 * M_PI) * one_third) + z);
+	float pi_third = M_PI * one_third;
+	for (int i = 0; i < 3; ++i)
+		est_roots[i] = two_sqrt_q * cos(third_theta + 2 * i * pi_third) + z;
+
+	sort(est_roots.begin(), est_roots.end());
 
 	return est_roots;
 }
@@ -75,11 +77,11 @@ std::vector<std::complex<T>> tiruneh(third_degree_polynomial<std::complex<T>> P)
 		if (arg < -1 || arg > 1)
 			throw arccos_out_of_range();
 
-		float theta = acos(arg);
+		float third_theta = acos(arg) * one_third;
 		float two_sqrt_q = 2 * sqrt_minus_cube;
-		est_roots[0] = (two_sqrt_q * cos(theta * one_third) + z);
-		est_roots[1] = (two_sqrt_q * cos((theta + 2 * M_PI) * one_third) + z);
-		est_roots[2] = (two_sqrt_q * cos((theta + 4 * M_PI) * one_third) + z);
+		float pi_third = M_PI * one_third;
+		for (int i = 0; i < 3; ++i)
+			est_roots[i] = two_sqrt_q * cos(third_theta + 2 * i * pi_third) + z;
 	}
 	else if (D > 0)
 	{
