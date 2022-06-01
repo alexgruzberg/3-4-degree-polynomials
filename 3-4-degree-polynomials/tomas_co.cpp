@@ -1,8 +1,9 @@
 //Tomas Co 10/07/2014
-//--------------------------//
-//---ONLY FOR REAL ROOTS---//
-//------------------------//
 //https://www.academia.edu/23308251/Real_Roots_of_Cubic_Equation
+
+//-----------------------------------------------------------//
+//---Modified by Maria Ermakova to work with complex roots---//
+//-----------------------------------------------------------//
 
 #include "polynomials.h"
 //	x^3 + a x^2 + b x + c
@@ -25,7 +26,7 @@ std::vector<T> tomas_co(third_degree_polynomial<T> P)
 	if (p_one_third > 0)
 		throw sqrt_of_negative_number();
 
-	float A = 2 * sqrt(-p_one_third); //p is less than 0
+	float A = 2 * sqrt(-p_one_third);
 
 	float acos_arg = (3 * q) / (A * p);
 	if (isinf(acos_arg) || isnan(acos_arg))
@@ -57,6 +58,8 @@ std::vector<std::complex<T>> tomas_co(third_degree_polynomial<std::complex<T>> P
 	float p = (3 * c - bb) * one_third;
 	float q = (b * (2 * bb - 9 * c) + 27 * d) * one_twentyseventh;
 
+	float B = -b * one_third;
+
 	std::vector<std::complex<T>> est_roots(3);
 	if (p < 0)
 	{
@@ -64,21 +67,39 @@ std::vector<std::complex<T>> tomas_co(third_degree_polynomial<std::complex<T>> P
 
 		float A = 2 * sqrt(-p_one_third);
 
-		float acos_arg = (3 * q) / (A * p);
+		float C = (3 * q) / (A * p);
 
-		if (isinf(acos_arg) || isnan(acos_arg))
+		if (isinf(C) || isnan(C))
 			throw division_by_zero();
-		if (acos_arg > 1 || acos_arg < -1)
-			throw invalid_types_of_complex();
 
-		float third_phi = acos(acos_arg) * one_third;
-		float B = -b * one_third;
 		float two_third_pi = 2 * M_PI * one_third;
 
-		for (int i = 0; i < 3; ++i)
-			est_roots[i] = A * cos(third_phi + i * two_third_pi) + B;
+		if (abs(C) <= 1)	//all roots should be real
+		{
+			float third_phi = acos(C) * one_third;
+			for (int i = 0; i < 3; ++i)
+				est_roots[i] = A * cos(third_phi + i * two_third_pi) + B;
+		}
+		else if (C < -1)	//the polynomial has complex conjugate
+		{
+			float _log = -log(abs(C + sqrt(C * C - 1)));
+			if (isinf(_log) || isnan(_log))
+				throw nan_value();
+
+			std::complex<T> phi(M_PI, _log);
+			std::complex<float> third_phi = phi * one_third;
+			for (int i = 0; i < 3; ++i)
+				est_roots[i > 1 ? 0 : i + 1] = A * cos(third_phi + i * two_third_pi) + B;
+		}
+		else if (C > 1)		//the polynomial has complex conjugate
+		{
+			std::complex<T> phi(0, log(C + sqrt(C * C - 1)));
+			std::complex<float>  third_phi = phi * one_third;
+			for (int i = 0; i < 3; ++i)
+				est_roots[2 - i] = A * cos(third_phi + i * two_third_pi) + B;
+		}
 	}
-	else if (p > 0)
+	else if (p > 0)		//the polynomial has complex conjugate
 	{
 		float A = 2 * sqrt(p * one_third);
 
@@ -87,8 +108,10 @@ std::vector<std::complex<T>> tomas_co(third_degree_polynomial<std::complex<T>> P
 			throw division_by_zero();
 
 		float phi = asinh(asinh_arg);
-		est_roots[0] = est_roots[1] = std::complex<T>(0,0);
-		est_roots[2] = std::complex<T>(-3 * A * 0.5 * sinh(phi * one_third),0);
+		phi = phi * one_third;
+		std::complex<T> two_third_pi_i(0, 2 * M_PI * one_third);
+		for (int i = 0; i < 3; ++i)
+			est_roots[2-i] = -A * sinh(phi + std::complex<T>(i,0) * two_third_pi_i) + B;
 	}
 	return est_roots;
 }

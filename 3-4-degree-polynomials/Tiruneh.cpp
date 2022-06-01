@@ -16,7 +16,7 @@ std::vector<T> tiruneh(third_degree_polynomial<T> P)
 	float Q = (-b * b * one_third + c) * one_third;
 	float R = -(z * (z * (z + b) + c) + d) * 0.5;
 
-	if (Q == 0 && R == 0)
+	if (Q == 0 && R == 0)	//all roots are the same
 	{
 		float x = -b * one_third;
 		std::vector<T> est_roots = { x, x, x };
@@ -63,7 +63,7 @@ std::vector<std::complex<T>> tiruneh(third_degree_polynomial<std::complex<T>> P)
 	std::vector<std::complex<T>> est_roots(3);
 
 	float D = Q * Q * Q + R * R;
-	if (D < 0)
+	if (D < 0)	//all roots should be different and real
 	{
 		if (Q > 0)
 			throw sqrt_of_negative_number();
@@ -83,7 +83,7 @@ std::vector<std::complex<T>> tiruneh(third_degree_polynomial<std::complex<T>> P)
 		for (int i = 0; i < 3; ++i)
 			est_roots[i] = two_sqrt_q * cos(third_theta + 2 * i * pi_third) + z;
 	}
-	else if (D > 0)
+	else if (D > 0)		//the polynomial has a complex conjugate
 	{
 
 
@@ -97,7 +97,7 @@ std::vector<std::complex<T>> tiruneh(third_degree_polynomial<std::complex<T>> P)
 		est_roots[1] = std::complex<T>(root_real, -root_imag);
 		est_roots[2] = z + B;
 	}
-	else
+	else	//all roots are the same
 	{
 		float x = -b * one_third;
 		std::vector<std::complex<T>> est_roots = { x, x, x };

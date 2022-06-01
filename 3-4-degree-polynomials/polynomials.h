@@ -15,15 +15,15 @@ class polynomial //abstract class for polynomial
 public:
     polynomial();
     polynomial(int degree);
-    virtual ~polynomial();
+    virtual ~polynomial() = 0;
 
-    void info();
+    void info();    //useful info about polynomial
     std::vector<float> get_coefs();
     std::vector<T> get_roots();
     float error_est_sum(std::vector<T> est_roots);  //error estimation
     float error_est_max(std::vector<T> est_roots);
 protected:
-    virtual void count_coefs();
+    virtual void count_coefs(); //counts coefficients of the polynomial using received roots
     std::vector<float> coefs;   //coefficients of a polynomial
     std::vector<T> roots;
 };
@@ -104,7 +104,7 @@ void polynomial<T>::count_coefs() {}
 
 
 template<typename T>
-class third_degree_polynomial : public polynomial<T>
+class third_degree_polynomial : public polynomial<T>        //third degree polynomial that has no complex roots
     ///
     ///         x^3 + coefs[2]*x^2 + coefs[1] * x + coefs[0]
     ///
@@ -143,19 +143,13 @@ third_degree_polynomial<T>::~third_degree_polynomial() {}
 template <typename T>
 void third_degree_polynomial<T>::count_coefs()
 {
-    /*if (typeid(T).name() == "class std::complex<float>")
-    {
-        this->coefs[0] = (float)(-(this->roots[0] * this->roots[1] * this->roots[2]));
-        this->coefs[1] = (float)(this->roots[0] * this->roots[1] + this->roots[0] * this->roots[2] + this->roots[1] * this->roots[2]);
-        this->coefs[2] = (float)((-(this->roots[0] + this->roots[1] + this->roots[2])));
-    }*/
     this->coefs[0] = -(this->roots[0] * this->roots[1] * this->roots[2]);
     this->coefs[1] = this->roots[0] * this->roots[1] + this->roots[0] * this->roots[2] + this->roots[1] * this->roots[2];
     this->coefs[2] = -(this->roots[0] + this->roots[1] + this->roots[2]);
 }
 
 template<typename T>
-class third_degree_polynomial<std::complex<T>> : public polynomial<std::complex<T>>
+class third_degree_polynomial<std::complex<T>> : public polynomial<std::complex<T>>     //third degree polynomial that can have complex roots
     ///
     ///         x^3 + coefs[2]*x^2 + coefs[1] * x + coefs[0]
     ///
@@ -208,7 +202,7 @@ void third_degree_polynomial<std::complex<T>>::count_coefs()
 
 
 template<typename T>
-class fourth_degree_polynomial : public polynomial<T>
+class fourth_degree_polynomial : public polynomial<T>       //fourth degree polynomial without complex roots
     ///
     ///         x^4 + coefs[3]*x^3 + coefs[2]*x^2 + coefs[1] * x + coefs[0]
     ///
@@ -256,7 +250,7 @@ void fourth_degree_polynomial<T>::count_coefs()
 
 
 template<typename T>
-class fourth_degree_polynomial<std::complex<T>> : public polynomial<std::complex<T>>
+class fourth_degree_polynomial<std::complex<T>> : public polynomial<std::complex<T>>       //fourth degree polynomial with complex roots
     ///
     ///         x^4 + coefs[3]*x^3 + coefs[2]*x^2 + coefs[1] * x + coefs[0]
     ///

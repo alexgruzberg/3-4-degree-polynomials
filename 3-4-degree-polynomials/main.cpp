@@ -20,26 +20,42 @@ inline float root_finder(third_degree_polynomial<T>& polynomial, vector<T>(*meth
         return error;
 }
 
-inline void error_estimation_info(vector<float>& error_estimations, float& sum_avg, int& exceptions, int& tests)
+template <typename T>
+inline void error_estimation_info(vector<float>& error_estimations, float& sum_avg, int& exceptions, int& tests, vector<T>& worst_case, float& max)
 {
     sort(error_estimations.begin(), error_estimations.end());
     cout << "Error estimation sum| x-x'|" << endl;
     cout << "Min : " << error_estimations[0] << endl;
-    cout << "Max : " << error_estimations.back() << endl;
+    cout << "Max : " << max << endl;
     sum_avg /= tests; cout << "Average : " << sum_avg << endl;
     cout << "Median : " << error_estimations[(tests - exceptions) / 2] << endl;
-    cout << "Number of exceptions : " << exceptions << endl << endl << endl;
+    cout << "Number of exceptions : " << exceptions << endl;
+    cout << "Roots with the worst error estimation : ";
+    for (auto v : worst_case)
+        cout << v << " ";
+    cout << endl << endl << endl;
 
-    error_estimations.clear(); sum_avg = 0; exceptions = 0;
+    error_estimations.clear(); sum_avg = 0; exceptions = 0; max = 0;
 }
 
 int main()
 {
-    // counting the current time in ms to use it as a seed for the rng //
+    
+    // counting the current time in ms to use it as a seed for the rng   //
     auto time = chrono::system_clock::now();
     auto time_ms = chrono::time_point_cast<chrono::milliseconds>(time);
     auto value = time_ms.time_since_epoch();
     long dur = value.count();
+
+
+    /*vector<complex<float>> crr(3);
+    crr[0] = complex<float>(-0.62, 1.18);
+    crr[1] = complex<float>(-0.62, -1.18);
+    crr[2] = complex<float>(2.24, 0);
+    third_degree_polynomial<complex<float>> pol(crr);
+    vector<complex<float>> roooots = tomas_co(pol);
+    for (int i = 0; i < 3; ++i)
+        cout << crr[i] << " " << roooots[i] << endl;*/
 
     // giving the seed to our RNG //
     std::mt19937::result_type const seedval = dur;
@@ -52,6 +68,7 @@ int main()
     int tests; std::cout << "Enter the number of tests: "; std::cin >> tests;
     float range; std::cout << "Enter the maximum value of a root: "; std::cin >> range; cout << endl << endl;
     int exceptions = 0;
+    vector<float> worst_case(3); float max = 0; float cur_error;
 
     vector<float> random_roots(3);
     vector<float> estimated_roots(3);
@@ -75,7 +92,13 @@ int main()
             try
             {
                 third_degree_polynomial<float> P(random_roots);
-                error_est_sum.push_back(root_finder(P, estimating_functions[k], sum_avg, exceptions));
+                cur_error = root_finder(P, estimating_functions[k], sum_avg, exceptions);
+                if (cur_error > max)
+                {
+                    max = cur_error;
+                    worst_case = P.get_roots();
+                }
+                error_est_sum.push_back(cur_error);
             }
             catch (division_by_zero& e)
             {
@@ -95,15 +118,21 @@ int main()
                 //std::cout << e.what() << std::endl;
                 ++exceptions;
             }
+            catch (nan_value& e)
+            {
+                //std::cout << "exception caught" << std::endl;
+                //std::cout << e.what() << std::endl;
+                ++exceptions;
+            }
         }
-        error_estimation_info(error_est_sum, sum_avg, exceptions, tests);
+        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case, max);
     }
     
 
 
 
 
-
+    
 
 
     //Cubic polynomials with a complex conjugate pair //
@@ -115,12 +144,14 @@ int main()
 
     vector<complex<float>> random_roots_c(3);
     vector<complex<float>> estimated_roots_c(3);
+    vector<complex<float>> worst_case_c(3);
 
-    vector<vector<complex<float>>(*)(third_degree_polynomial<complex<float>>)> estimating_functions_complex(2);
-    estimating_functions_complex[0] = &cardon; estimating_functions_complex[1] = &tiruneh;
+    vector<vector<complex<float>>(*)(third_degree_polynomial<complex<float>>)> estimating_functions_complex(3);
+    estimating_functions_complex[0] = &cardon; estimating_functions_complex[1] = &tiruneh; estimating_functions_complex[2] = &tomas_co;
     vector<string> estimating_functions_complex_names(estimating_functions.size());
     estimating_functions_complex_names[0] = "Cardon’s method to solve a cubic equation";
     estimating_functions_complex_names[1] = "A simplified expression for the solution of cubic polynomial equations using function evaluation-Tiruneh-2020";
+    estimating_functions_complex_names[2] = "modified for complex roots Tomas Co Real roots for cubic equation";
 
     for (int k = 0; k < estimating_functions_complex.size(); k++)
     {
@@ -134,7 +165,13 @@ int main()
             try
             {
                 third_degree_polynomial<complex<float>> P(random_roots_c);
-                error_est_sum.push_back(root_finder(P, estimating_functions_complex[k], sum_avg, exceptions));
+                cur_error = root_finder(P, estimating_functions_complex[k], sum_avg, exceptions);
+                if (cur_error > max)
+                {
+                    max = cur_error;
+                    worst_case_c = P.get_roots();
+                }
+                error_est_sum.push_back(cur_error);
             }
             catch (division_by_zero& e)
             {
@@ -154,8 +191,14 @@ int main()
                 //std::cout << e.what() << std::endl;
                 ++exceptions;
             }
+            catch (nan_value& e)
+            {
+                //std::cout << "exception caught" << std::endl;
+                //std::cout << e.what() << std::endl;
+                ++exceptions;
+            }
         }
-        error_estimation_info(error_est_sum, sum_avg, exceptions, tests);
+        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case, max);
     }
 
 
@@ -181,8 +224,13 @@ int main()
             random_roots[2] = random_roots[1] = random_roots[0];
             try
             {
-                third_degree_polynomial<float> P(random_roots);
-                error_est_sum.push_back(root_finder(P, estimating_functions[k], sum_avg, exceptions));
+                third_degree_polynomial<float> P(random_roots); cur_error = root_finder(P, estimating_functions[k], sum_avg, exceptions);
+                if (cur_error > max)
+                {
+                    max = cur_error;
+                    worst_case = P.get_roots();
+                }
+                error_est_sum.push_back(cur_error);
             }
             catch (division_by_zero& e)
             {
@@ -202,8 +250,14 @@ int main()
                 //std::cout << e.what() << std::endl;
                 ++exceptions;
             }
+            catch (nan_value& e)
+            {
+                //std::cout << "exception caught" << std::endl;
+                //std::cout << e.what() << std::endl;
+                ++exceptions;
+            }
         }
-        error_estimation_info(error_est_sum, sum_avg, exceptions, tests);    
+        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case, max);
     }
 
 
@@ -229,8 +283,14 @@ int main()
             random_roots[2] = random_roots[1] = range * udist(rng) / (float)1e8;
             try
             {
-                third_degree_polynomial<float> P(random_roots);
-                error_est_sum.push_back(root_finder(P, estimating_functions[k], sum_avg, exceptions));
+                third_degree_polynomial<float> P(random_roots); 
+                cur_error = root_finder(P, estimating_functions[k], sum_avg, exceptions);
+                if (cur_error > max)
+                {
+                    max = cur_error;
+                    worst_case = P.get_roots();
+                }
+                error_est_sum.push_back(cur_error);
             }
             catch (division_by_zero& e)
             {
@@ -250,8 +310,14 @@ int main()
                 //std::cout << e.what() << std::endl;
                 ++exceptions;
             }
+            catch (nan_value& e)
+            {
+                //std::cout << "exception caught" << std::endl;
+                //std::cout << e.what() << std::endl;
+                ++exceptions;
+            }
         }
-        error_estimation_info(error_est_sum, sum_avg, exceptions, tests);
+        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case, max);
     }
     
 
@@ -278,8 +344,14 @@ int main()
             random_roots[2] = random_roots[0] + range * udist(rng) / (float)(1000 * 1e8);
             try
             {
-                third_degree_polynomial<float> P(random_roots);
-                error_est_sum.push_back(root_finder(P, estimating_functions[k], sum_avg, exceptions));
+                third_degree_polynomial<float> P(random_roots); 
+                cur_error = root_finder(P, estimating_functions[k], sum_avg, exceptions);
+                if (cur_error > max)
+                {
+                    max = cur_error;
+                    worst_case = P.get_roots();
+                }
+                error_est_sum.push_back(cur_error);
             }
             catch (division_by_zero& e)
             {
@@ -299,8 +371,14 @@ int main()
                 //std::cout << e.what() << std::endl;
                 ++exceptions;
             }
+            catch (nan_value& e)
+            {
+                //std::cout << "exception caught" << std::endl;
+                //std::cout << e.what() << std::endl;
+                ++exceptions;
+            }
         }
-        error_estimation_info(error_est_sum, sum_avg, exceptions, tests);
+        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case, max);
     }
     
 
@@ -327,7 +405,13 @@ int main()
             try
             {
                 third_degree_polynomial<float> P(random_roots);
-                error_est_sum.push_back(root_finder(P, estimating_functions[k], sum_avg, exceptions));
+                cur_error = root_finder(P, estimating_functions[k], sum_avg, exceptions);
+                if (cur_error > max)
+                {
+                    max = cur_error;
+                    worst_case = P.get_roots();
+                }
+                error_est_sum.push_back(cur_error);
             }
             catch (division_by_zero& e)
             {
@@ -347,20 +431,13 @@ int main()
                 //std::cout << e.what() << std::endl;
                 ++exceptions;
             }
+            catch (nan_value& e)
+            {
+                //std::cout << "exception caught" << std::endl;
+                //std::cout << e.what() << std::endl;
+                ++exceptions;
+            }
         }
-        error_estimation_info(error_est_sum, sum_avg, exceptions, tests);
+        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case, max);
     }
-
-    /*experiment
-    float x = 1e8 * 1e8, y = 1 / (float)1e8; x = x * x; y = y * y;
-    if (isnan(x / y))
-        std::cout << "NaN!";
-    else if (isinf(x / y))
-        std::cout << "inf!";
-    else
-        std::cout << "What an unpleasant surpise! x/y = " << (x/y);
-
-    //received inf - you were right
-
-    */
 }

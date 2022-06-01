@@ -42,3 +42,11 @@ struct unexcpected_number_of_roots : public std::exception
         return "Received unexpected number of roots";
     }
 };
+
+struct nan_value : public std::exception
+{
+    const char* what() const throw ()
+    {
+        return "NaN value";
+    }
+};
