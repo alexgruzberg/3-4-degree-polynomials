@@ -8,11 +8,10 @@ using namespace std;
 uniform_int_distribution<mt19937::result_type> udist(0,(float)1e8);
 mt19937 rng;
 
-template <typename T>
-inline float root_finder(third_degree_polynomial<T>& polynomial, vector<T>(*method)(third_degree_polynomial<T>), float& sum_avg, int& exceptions)
+template <typename pol, typename root_type>
+inline float root_finder(pol& polynomial, vector<root_type>(*method)(pol), float& sum_avg, int& exceptions)
 {
-        vector<T> estimated_roots(3);
-        estimated_roots = method(polynomial);
+        vector<root_type> estimated_roots = method(polynomial);
         float error = polynomial.error_est_sum(estimated_roots);
         sum_avg += error;
         if (isnan(error) || isinf(error))
@@ -25,22 +24,30 @@ inline void error_estimation_info(vector<float>& error_estimations, float& sum_a
 {
     sort(error_estimations.begin(), error_estimations.end());
     cout << "Error estimation sum| x-x'|" << endl;
-    cout << "Min : " << error_estimations[0] << endl;
-    cout << "Max : " << max << endl;
-    sum_avg /= tests; cout << "Average : " << sum_avg << endl;
-    cout << "Median : " << error_estimations[(tests - exceptions) / 2] << endl;
+    if (error_estimations.size() > 0)
+    {
+        cout << "Min : " << error_estimations[0] << endl;
+        cout << "Max : " << max << endl;
+        sum_avg /= tests; cout << "Average : " << sum_avg << endl;
+        cout << "Median : " << error_estimations[(tests - exceptions) / 2] << endl;
+        cout << "Roots with the worst error estimation : ";
+        for (auto v : worst_case)
+            cout << v << " ";
+    }
     cout << "Number of exceptions : " << exceptions << endl;
-    cout << "Roots with the worst error estimation : ";
-    for (auto v : worst_case)
-        cout << v << " ";
     cout << endl << endl << endl;
 
     error_estimations.clear(); sum_avg = 0; exceptions = 0; max = 0;
 }
 
+template <typename T>
+bool complex_greater(complex<T> a, complex<T> b)
+{
+    return abs(a) > abs(b);
+}
+
 int main()
 {
-    
     // counting the current time in ms to use it as a seed for the rng   //
     auto time = chrono::system_clock::now();
     auto time_ms = chrono::time_point_cast<chrono::milliseconds>(time);
@@ -68,35 +75,34 @@ int main()
     int tests; std::cout << "Enter the number of tests: "; std::cin >> tests;
     float range; std::cout << "Enter the maximum value of a root: "; std::cin >> range; cout << endl << endl;
     int exceptions = 0;
-    vector<float> worst_case(3); float max = 0; float cur_error;
+    vector<float> worst_case_cubic(3); float max = 0; float cur_error;
 
-    vector<float> random_roots(3);
-    vector<float> estimated_roots(3);
+    vector<float> random_roots_cubic(3);
     vector<float> error_est_sum; float sum_avg = 0;
 
-    vector<vector<float> (*)(third_degree_polynomial<float>)> estimating_functions(3);
-    estimating_functions[0] = &cardon; estimating_functions[1] = &tiruneh; estimating_functions[2] = &tomas_co;
+    vector<vector<float> (*)(third_degree_polynomial<float>)> estimating_functions_cubic(3);
+    estimating_functions_cubic[0] = &cardon; estimating_functions_cubic[1] = &tiruneh; estimating_functions_cubic[2] = &tomas_co;
 
-    vector<string> estimating_functions_names(estimating_functions.size());
-    estimating_functions_names[0] = "Cardons method to solve a cubic equation";
-    estimating_functions_names[1] = "A simplified expression for the solution of cubic polynomial equations using function evaluation-Tiruneh-2020";
-    estimating_functions_names[2] = "Tomas Co Real roots for cubic equation";
+    vector<string> estimating_functions_cubic_names(estimating_functions_cubic.size());
+    estimating_functions_cubic_names[0] = "Cardons method to solve a cubic equation";
+    estimating_functions_cubic_names[1] = "A simplified expression for the solution of cubic polynomial equations using function evaluation-Tiruneh-2020";
+    estimating_functions_cubic_names[2] = "Tomas Co Real roots for cubic equation";
 
-    for (int k = 0; k < estimating_functions.size(); k++)
+    for (int k = 0; k < estimating_functions_cubic.size(); k++)
     {
-        cout << "Method: " << estimating_functions_names[k] << std::endl;
+        cout << "Method: " << estimating_functions_cubic_names[k] << std::endl;
         for (int i = 0; i < tests; ++i)
         {
             for (int j = 0; j < 3; ++j)
-                random_roots[j] = range * udist(rng) / (float)1e8;
+                random_roots_cubic[j] = range * udist(rng) / (float)1e8;
             try
             {
-                third_degree_polynomial<float> P(random_roots);
-                cur_error = root_finder(P, estimating_functions[k], sum_avg, exceptions);
+                third_degree_polynomial<float> P(random_roots_cubic);
+                cur_error = root_finder(P, estimating_functions_cubic[k], sum_avg, exceptions);
                 if (cur_error > max)
                 {
                     max = cur_error;
-                    worst_case = P.get_roots();
+                    worst_case_cubic = P.get_roots();
                 }
                 error_est_sum.push_back(cur_error);
             }
@@ -125,10 +131,9 @@ int main()
                 ++exceptions;
             }
         }
-        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case, max);
+        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case_cubic, max);
     }
     
-
 
 
 
@@ -140,36 +145,34 @@ int main()
     std::cout << "Cubic polynomials with real root within the interval [0,x] and a complex conjugate with Re z and |Im z| within the same interval." << std::endl;
     std::cout << "Enter the number of tests: "; std::cin >> tests;
     std::cout << "Enter the maximum value of a root: "; std::cin >> range; cout << endl << endl;
-    exceptions = 0;
 
-    vector<complex<float>> random_roots_c(3);
-    vector<complex<float>> estimated_roots_c(3);
-    vector<complex<float>> worst_case_c(3);
+    vector<complex<float>> random_roots_cubic_c(3);
+    vector<complex<float>> worst_case_cubic_c(3);
 
-    vector<vector<complex<float>>(*)(third_degree_polynomial<complex<float>>)> estimating_functions_complex(3);
-    estimating_functions_complex[0] = &cardon; estimating_functions_complex[1] = &tiruneh; estimating_functions_complex[2] = &tomas_co;
-    vector<string> estimating_functions_complex_names(estimating_functions.size());
-    estimating_functions_complex_names[0] = "Cardon’s method to solve a cubic equation";
-    estimating_functions_complex_names[1] = "A simplified expression for the solution of cubic polynomial equations using function evaluation-Tiruneh-2020";
-    estimating_functions_complex_names[2] = "modified for complex roots Tomas Co Real roots for cubic equation";
+    vector<vector<complex<float>>(*)(third_degree_polynomial<complex<float>>)> estimating_functions_cubic_complex(3);
+    estimating_functions_cubic_complex[0] = &cardon; estimating_functions_cubic_complex[1] = &tiruneh; estimating_functions_cubic_complex[2] = &tomas_co;
+    vector<string> estimating_functions_cubic_complex_names(estimating_functions_cubic.size());
+    estimating_functions_cubic_complex_names[0] = "Cardon’s method to solve a cubic equation";
+    estimating_functions_cubic_complex_names[1] = "A simplified expression for the solution of cubic polynomial equations using function evaluation-Tiruneh-2020";
+    estimating_functions_cubic_complex_names[2] = "modified for complex roots Tomas Co Real roots for cubic equation";
 
-    for (int k = 0; k < estimating_functions_complex.size(); k++)
+    for (int k = 0; k < estimating_functions_cubic_complex.size(); k++)
     {
-        cout << "Method: " << estimating_functions_complex_names[k] << std::endl;
+        cout << "Method: " << estimating_functions_cubic_complex_names[k] << std::endl;
         for (int i = 0; i < tests; ++i)
         {
             float rand_real = range * udist(rng) / (float)1e8; float rand_img = range * udist(rng) / (float)1e8;
-            random_roots_c[0] = complex<float>(rand_real, rand_img);
-            random_roots_c[1] = complex<float>(rand_real, -rand_img);
-            random_roots_c[2] = complex<float>(range * udist(rng) / (float)1e8, 0);
+            random_roots_cubic_c[0] = complex<float>(rand_real, rand_img);
+            random_roots_cubic_c[1] = complex<float>(rand_real, -rand_img);
+            random_roots_cubic_c[2] = complex<float>(range * udist(rng) / (float)1e8, 0);
             try
             {
-                third_degree_polynomial<complex<float>> P(random_roots_c);
-                cur_error = root_finder(P, estimating_functions_complex[k], sum_avg, exceptions);
+                third_degree_polynomial<complex<float>> P(random_roots_cubic_c);
+                cur_error = root_finder(P, estimating_functions_cubic_complex[k], sum_avg, exceptions);
                 if (cur_error > max)
                 {
                     max = cur_error;
-                    worst_case_c = P.get_roots();
+                    worst_case_cubic_c = P.get_roots();
                 }
                 error_est_sum.push_back(cur_error);
             }
@@ -198,7 +201,7 @@ int main()
                 ++exceptions;
             }
         }
-        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case, max);
+        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case_cubic, max);
     }
 
 
@@ -215,20 +218,20 @@ int main()
     std::cout << "Enter the number of tests: "; std::cin >> tests;
     std::cout << "Enter the maximum value of a root: "; std::cin >> range; cout << endl << endl;
 
-    for (int k = 0; k < estimating_functions.size(); k++)
+    for (int k = 0; k < estimating_functions_cubic.size(); k++)
     {
-        cout << "Method: " << estimating_functions_names[k] << std::endl;
+        cout << "Method: " << estimating_functions_cubic_names[k] << std::endl;
         for (int i = 0; i < tests; ++i)
         {
-            random_roots[0] = range * udist(rng) / (float)1e8;
-            random_roots[2] = random_roots[1] = random_roots[0];
+            random_roots_cubic[0] = range * udist(rng) / (float)1e8;
+            random_roots_cubic[2] = random_roots_cubic[1] = random_roots_cubic[0];
             try
             {
-                third_degree_polynomial<float> P(random_roots); cur_error = root_finder(P, estimating_functions[k], sum_avg, exceptions);
+                third_degree_polynomial<float> P(random_roots_cubic); cur_error = root_finder(P, estimating_functions_cubic[k], sum_avg, exceptions);
                 if (cur_error > max)
                 {
                     max = cur_error;
-                    worst_case = P.get_roots();
+                    worst_case_cubic = P.get_roots();
                 }
                 error_est_sum.push_back(cur_error);
             }
@@ -257,7 +260,7 @@ int main()
                 ++exceptions;
             }
         }
-        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case, max);
+        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case_cubic, max);
     }
 
 
@@ -274,21 +277,21 @@ int main()
     std::cout << "Enter the number of tests: "; std::cin >> tests;
     std::cout << "Enter the maximum value of a root: "; std::cin >> range; cout << endl << endl;
 
-    for (int k = 0; k < estimating_functions.size(); ++k)
+    for (int k = 0; k < estimating_functions_cubic.size(); ++k)
     {
-        cout << "Method: " << estimating_functions_names[k] << std::endl;
+        cout << "Method: " << estimating_functions_cubic_names[k] << std::endl;
         for (int i = 0; i < tests; ++i)
         {
-            random_roots[0] = range * udist(rng) / (float)1e8;
-            random_roots[2] = random_roots[1] = range * udist(rng) / (float)1e8;
+            random_roots_cubic[0] = range * udist(rng) / (float)1e8;
+            random_roots_cubic[2] = random_roots_cubic[1] = range * udist(rng) / (float)1e8;
             try
             {
-                third_degree_polynomial<float> P(random_roots); 
-                cur_error = root_finder(P, estimating_functions[k], sum_avg, exceptions);
+                third_degree_polynomial<float> P(random_roots_cubic); 
+                cur_error = root_finder(P, estimating_functions_cubic[k], sum_avg, exceptions);
                 if (cur_error > max)
                 {
                     max = cur_error;
-                    worst_case = P.get_roots();
+                    worst_case_cubic = P.get_roots();
                 }
                 error_est_sum.push_back(cur_error);
             }
@@ -317,7 +320,7 @@ int main()
                 ++exceptions;
             }
         }
-        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case, max);
+        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case_cubic, max);
     }
     
 
@@ -334,22 +337,22 @@ int main()
     std::cout << "Enter the number of tests: "; std::cin >> tests;
     std::cout << "Enter the maximum value of a root: "; std::cin >> range; cout << endl << endl;
 
-    for (int k = 0; k < estimating_functions.size(); ++k)
+    for (int k = 0; k < estimating_functions_cubic.size(); ++k)
     {
-        cout << "Method: " << estimating_functions_names[k] << std::endl;
+        cout << "Method: " << estimating_functions_cubic_names[k] << std::endl;
         for (int i = 0; i < tests; ++i)
         {
-            random_roots[0] = range * udist(rng) / (float)1e8;
-            random_roots[1] = random_roots[0] + range * udist(rng) / (float)(1000 * 1e8);
-            random_roots[2] = random_roots[0] + range * udist(rng) / (float)(1000 * 1e8);
+            random_roots_cubic[0] = range * udist(rng) / (float)1e8;
+            random_roots_cubic[1] = random_roots_cubic[0] + range * udist(rng) / (float)(1000 * 1e8);
+            random_roots_cubic[2] = random_roots_cubic[0] + range * udist(rng) / (float)(1000 * 1e8);
             try
             {
-                third_degree_polynomial<float> P(random_roots); 
-                cur_error = root_finder(P, estimating_functions[k], sum_avg, exceptions);
+                third_degree_polynomial<float> P(random_roots_cubic); 
+                cur_error = root_finder(P, estimating_functions_cubic[k], sum_avg, exceptions);
                 if (cur_error > max)
                 {
                     max = cur_error;
-                    worst_case = P.get_roots();
+                    worst_case_cubic = P.get_roots();
                 }
                 error_est_sum.push_back(cur_error);
             }
@@ -378,7 +381,7 @@ int main()
                 ++exceptions;
             }
         }
-        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case, max);
+        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case_cubic, max);
     }
     
 
@@ -394,22 +397,22 @@ int main()
     std::cout << "Enter the number of tests: "; std::cin >> tests;
     std::cout << "Enter the maximum value of a root: "; std::cin >> range; cout << endl << endl;
 
-    for (int k = 0; k < estimating_functions.size(); ++k)
+    for (int k = 0; k < estimating_functions_cubic.size(); ++k)
     {
-        cout << "Method: " << estimating_functions_names[k] << std::endl;
+        cout << "Method: " << estimating_functions_cubic_names[k] << std::endl;
         for (int i = 0; i < tests; ++i)
         {
-            random_roots[0] = range * udist(rng) / (float)1e8;
-            random_roots[1] = random_roots[0] + range * udist(rng) / (float)(1000 * 1e8);
-            random_roots[2] = range * udist(rng) / (float)1e8;
+            random_roots_cubic[0] = range * udist(rng) / (float)1e8;
+            random_roots_cubic[1] = random_roots_cubic[0] + range * udist(rng) / (float)(1000 * 1e8);
+            random_roots_cubic[2] = range * udist(rng) / (float)1e8;
             try
             {
-                third_degree_polynomial<float> P(random_roots);
-                cur_error = root_finder(P, estimating_functions[k], sum_avg, exceptions);
+                third_degree_polynomial<float> P(random_roots_cubic);
+                cur_error = root_finder(P, estimating_functions_cubic[k], sum_avg, exceptions);
                 if (cur_error > max)
                 {
                     max = cur_error;
-                    worst_case = P.get_roots();
+                    worst_case_cubic = P.get_roots();
                 }
                 error_est_sum.push_back(cur_error);
             }
@@ -438,6 +441,569 @@ int main()
                 ++exceptions;
             }
         }
-        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case, max);
+        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case_cubic, max);
+    }
+
+
+
+
+
+
+
+
+
+    //---Quartic polynomials with 4 different real roots---//
+    std::cout << "Quartic polynomials with 4 different real roots within the interval [0,x]" << std::endl;
+    std::cout << "Enter the number of tests: "; std::cin >> tests;
+    std::cout << "Enter the maximum value of a root: "; std::cin >> range; cout << endl << endl;
+    vector<float> worst_case_quartic(4);
+
+    vector<float> random_roots_quartic(4);
+
+    vector<vector<float>(*)(fourth_degree_polynomial<float>)> estimating_functions_quartic(1);
+    estimating_functions_quartic[0] = &ferrari;
+
+    vector<string> estimating_functions_quartic_names(estimating_functions_quartic.size());
+    estimating_functions_quartic_names[0] = "Ferrari's solution for quartic equations";
+
+    for (int k = 0; k < estimating_functions_quartic.size(); k++)
+    {
+        cout << "Method: " << estimating_functions_quartic_names[k] << std::endl;
+        for (int i = 0; i < tests; ++i)
+        {
+            for (int j = 0; j < 3; ++j)
+                random_roots_quartic[j] = range * udist(rng) / (float)1e8;
+            try
+            {
+                fourth_degree_polynomial<float> P(random_roots_quartic);
+                cur_error = root_finder(P, estimating_functions_quartic[k], sum_avg, exceptions);
+                if (cur_error > max)
+                {
+                    max = cur_error;
+                    worst_case_cubic = P.get_roots();
+                }
+                error_est_sum.push_back(cur_error);
+            }
+            catch (division_by_zero& e)
+            {
+                //std::cout << "exception caught" << std::endl;
+                //std::cout << e.what() << std::endl;
+                ++exceptions;
+            }
+            catch (sqrt_of_negative_number& e)
+            {
+                //std::cout << "exception caught" << std::endl;
+                //std::cout << e.what() << std::endl;
+                ++exceptions;
+            }
+            catch (arccos_out_of_range& e)
+            {
+                //std::cout << "exception caught" << std::endl;
+                //std::cout << e.what() << std::endl;
+                ++exceptions;
+            }
+            catch (nan_value& e)
+            {
+                //std::cout << "exception caught" << std::endl;
+                //std::cout << e.what() << std::endl;
+                ++exceptions;
+            }
+        }
+        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case_cubic, max);
+    }
+
+
+
+
+
+
+
+
+
+    //---Quartic polynomials with 1 complex conjugate---//
+    std::cout << "Quartic polynomials with one complex conjugate with Re z and |Im z| within the same interval. " << std::endl;
+    std::cout << "Enter the number of tests: "; std::cin >> tests;
+    std::cout << "Enter the maximum value of a root: "; std::cin >> range; cout << endl << endl;
+
+    vector<complex<float>> random_roots_quartic_c(4);
+    vector<complex<float>> worst_case_quartic_c(4);
+
+    vector<vector<complex<float>>(*)(fourth_degree_polynomial<complex<float>>)> estimating_functions_quartic_complex(1);
+    estimating_functions_quartic_complex[0] = &ferrari;
+
+    vector<string> estimating_functions_quartic_complex_names(estimating_functions_cubic.size());
+    estimating_functions_quartic_complex_names[0] = "Ferrari's solution for quartic equations";
+
+    for (int k = 0; k < estimating_functions_quartic_complex.size(); k++)
+    {
+        cout << "Method: " << estimating_functions_quartic_complex_names[k] << std::endl;
+        for (int i = 0; i < tests; ++i)
+        {
+            float rand_real = range * udist(rng) / (float)1e8; float rand_img = range * udist(rng) / (float)1e8;
+            random_roots_quartic_c[0] = complex<float>(rand_real, rand_img);
+            random_roots_quartic_c[1] = complex<float>(rand_real, -rand_img);
+            random_roots_quartic_c[2] = complex<float>(range * udist(rng) / (float)1e8, 0);
+            random_roots_quartic_c[3] = complex<float>(range * udist(rng) / (float)1e8, 0);
+            try
+            {
+                fourth_degree_polynomial<complex<float>> P(random_roots_quartic_c);
+                cur_error = root_finder(P, estimating_functions_quartic_complex[k], sum_avg, exceptions);
+                if (cur_error > max)
+                {
+                    max = cur_error;
+                    worst_case_quartic_c = P.get_roots();
+                }
+                error_est_sum.push_back(cur_error);
+            }
+            catch (division_by_zero& e)
+            {
+                //std::cout << "exception caught" << std::endl;
+                //std::cout << e.what() << std::endl;  
+                ++exceptions;
+            }
+            catch (sqrt_of_negative_number& e)
+            {
+                //std::cout << "exception caught" << std::endl;
+                //std::cout << e.what() << std::endl;
+                ++exceptions;
+            }
+            catch (arccos_out_of_range& e)
+            {
+                //std::cout << "exception caught" << std::endl;
+                //std::cout << e.what() << std::endl;
+                ++exceptions;
+            }
+            catch (nan_value& e)
+            {
+                //std::cout << "exception caught" << std::endl;
+                //std::cout << e.what() << std::endl;
+                ++exceptions;
+            }
+        }
+        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case_cubic, max);
+    }
+
+    
+
+
+
+
+
+
+
+    //---Quartic polynomials with 2 complex conjugates---//
+    std::cout << "Quartic polynomials with one complex conjugate with Re z and |Im z| within the same interval. " << std::endl;
+    std::cout << "Enter the number of tests: "; std::cin >> tests;
+    std::cout << "Enter the maximum value of a root: "; std::cin >> range; cout << endl << endl;
+
+    for (int k = 0; k < estimating_functions_quartic_complex.size(); k++)
+    {
+        cout << "Method: " << estimating_functions_quartic_complex_names[k] << std::endl;
+        for (int i = 0; i < tests; ++i)
+        {
+            for (int i = 0; i < 2; ++i)
+            {
+                float rand_real = range * udist(rng) / (float)1e8; float rand_img = range * udist(rng) / (float)1e8;
+                random_roots_quartic_c[2 * i] = complex<float>(rand_real, rand_img);
+                random_roots_quartic_c[2 * i + 1] = complex<float>(rand_real, -rand_img);
+            }
+            try
+            {
+                fourth_degree_polynomial<complex<float>> P(random_roots_quartic_c);
+                cur_error = root_finder(P, estimating_functions_quartic_complex[k], sum_avg, exceptions);
+                if (cur_error > max)
+                {
+                    max = cur_error;
+                    worst_case_quartic_c = P.get_roots();
+                }
+                error_est_sum.push_back(cur_error);
+            }
+            catch (division_by_zero& e)
+            {
+                //std::cout << "exception caught" << std::endl; 
+                //std::cout << e.what() << std::endl;
+                ++exceptions;
+            }
+            catch (sqrt_of_negative_number& e)
+            {
+                //std::cout << "exception caught" << std::endl;
+                //std::cout << e.what() << std::endl;
+                ++exceptions;
+            }
+            catch (arccos_out_of_range& e)
+            {
+                //std::cout << "exception caught" << std::endl;
+                //std::cout << e.what() << std::endl;
+                ++exceptions;
+            }
+            catch (nan_value& e)
+            {
+                //std::cout << "exception caught" << std::endl;
+                //std::cout << e.what() << std::endl;
+                ++exceptions;
+            }
+        }
+        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case_cubic, max);
+    }
+
+
+
+
+
+
+
+
+
+
+    //---Quartic polynomials with 4 same roots---//
+    std::cout << "Quartic polynomials with 4 same roots within the interval [0,x]" << std::endl;
+    std::cout << "Enter the number of tests: "; std::cin >> tests;
+    std::cout << "Enter the maximum value of a root: "; std::cin >> range; cout << endl << endl;
+
+    for (int k = 0; k < estimating_functions_quartic.size(); k++)
+    {
+        cout << "Method: " << estimating_functions_quartic_names[k] << std::endl;
+        for (int i = 0; i < tests; ++i)
+        {
+            random_roots_quartic[0] = range * udist(rng) / (float)1e8;
+            random_roots_quartic[3] = random_roots_quartic[2] = random_roots_quartic[1] = random_roots_quartic[0];
+            try
+            {
+                fourth_degree_polynomial<float> P(random_roots_quartic);
+                cur_error = root_finder(P, estimating_functions_quartic[k], sum_avg, exceptions);
+                if (cur_error > max)
+                {
+                    max = cur_error;
+                    worst_case_cubic = P.get_roots();
+                }
+                error_est_sum.push_back(cur_error);
+            }
+            catch (division_by_zero& e)
+            {
+                //std::cout << "exception caught" << std::endl;
+                //std::cout << e.what() << std::endl;
+                ++exceptions;
+            }
+            catch (sqrt_of_negative_number& e)
+            {
+                //std::cout << "exception caught" << std::endl;
+                //std::cout << e.what() << std::endl;
+                ++exceptions;
+            }
+            catch (arccos_out_of_range& e)
+            {
+                //std::cout << "exception caught" << std::endl;
+                //std::cout << e.what() << std::endl;
+                ++exceptions;
+            }
+            catch (nan_value& e)
+            {
+                //std::cout << "exception caught" << std::endl;
+                //std::cout << e.what() << std::endl;
+                ++exceptions;
+            }
+        }
+        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case_cubic, max);
+    }
+
+
+
+
+
+
+
+
+
+    //---Quartic polynomials with 3 same roots---//
+    std::cout << "Quartic polynomials with 3 same roots within the interval [0,x]" << std::endl;
+    std::cout << "Enter the number of tests: "; std::cin >> tests;
+    std::cout << "Enter the maximum value of a root: "; std::cin >> range; cout << endl << endl;
+
+    for (int k = 0; k < estimating_functions_quartic.size(); k++)
+    {
+        cout << "Method: " << estimating_functions_quartic_names[k] << std::endl;
+        for (int i = 0; i < tests; ++i)
+        {
+            random_roots_quartic[0] = range * udist(rng) / (float)1e8;
+            random_roots_quartic[3] = random_roots_quartic[2] = random_roots_quartic[1] = range * udist(rng) / (float)1e8;
+            try
+            {
+                fourth_degree_polynomial<float> P(random_roots_quartic);
+                cur_error = root_finder(P, estimating_functions_quartic[k], sum_avg, exceptions);
+                if (cur_error > max)
+                {
+                    max = cur_error;
+                    worst_case_cubic = P.get_roots();
+                }
+                error_est_sum.push_back(cur_error);
+            }
+            catch (division_by_zero& e)
+            {
+                //std::cout << "exception caught" << std::endl;
+                //std::cout << e.what() << std::endl;
+                ++exceptions;
+            }
+            catch (sqrt_of_negative_number& e)
+            {
+                //std::cout << "exception caught" << std::endl;
+                //std::cout << e.what() << std::endl;
+                ++exceptions;
+            }
+            catch (arccos_out_of_range& e)
+            {
+                //std::cout << "exception caught" << std::endl;
+                //std::cout << e.what() << std::endl;
+                ++exceptions;
+            }
+            catch (nan_value& e)
+            {
+                //std::cout << "exception caught" << std::endl;
+                //std::cout << e.what() << std::endl;
+                ++exceptions;
+            }
+        }
+        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case_cubic, max);
+    }
+
+
+
+
+
+
+
+
+
+    //---Quartic polynomials with 2 same roots---//
+    std::cout << "Quartic polynomials with 2 same roots within the interval [0,x]" << std::endl;
+    std::cout << "Enter the number of tests: "; std::cin >> tests;
+    std::cout << "Enter the maximum value of a root: "; std::cin >> range; cout << endl << endl;
+
+    for (int k = 0; k < estimating_functions_quartic.size(); k++)
+    {
+        cout << "Method: " << estimating_functions_quartic_names[k] << std::endl;
+        for (int i = 0; i < tests; ++i)
+        {
+            for (int i = 0; i < 3; ++i)
+                random_roots_quartic[i] = range * udist(rng) / (float)1e8;
+            random_roots_quartic[3] = random_roots_quartic[2];
+            try
+            {
+                fourth_degree_polynomial<float> P(random_roots_quartic);
+                cur_error = root_finder(P, estimating_functions_quartic[k], sum_avg, exceptions);
+                if (cur_error > max)
+                {
+                    max = cur_error;
+                    worst_case_cubic = P.get_roots();
+                }
+                error_est_sum.push_back(cur_error);
+            }
+            catch (division_by_zero& e)
+            {
+                //std::cout << "exception caught" << std::endl;
+                //std::cout << e.what() << std::endl;
+                ++exceptions;
+            }
+            catch (sqrt_of_negative_number& e)
+            {
+                //std::cout << "exception caught" << std::endl;
+                //std::cout << e.what() << std::endl;
+                ++exceptions;
+            }
+            catch (arccos_out_of_range& e)
+            {
+                //std::cout << "exception caught" << std::endl;
+                //std::cout << e.what() << std::endl;
+                ++exceptions;
+            }
+            catch (nan_value& e)
+            {
+                //std::cout << "exception caught" << std::endl;
+                //std::cout << e.what() << std::endl;
+                ++exceptions;
+            }
+        }
+        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case_cubic, max);
+    }
+
+
+
+
+
+
+
+
+
+    //---Quartic polynomials with 4 almost same roots---//
+    std::cout << "Quartic polynomials with 4 almost same roots within the interval [0,x]" << std::endl;
+    std::cout << "Enter the number of tests: "; std::cin >> tests;
+    std::cout << "Enter the maximum value of a root: "; std::cin >> range; cout << endl << endl;
+
+    for (int k = 0; k < estimating_functions_quartic.size(); k++)
+    {
+        cout << "Method: " << estimating_functions_quartic_names[k] << std::endl;
+        for (int i = 0; i < tests; ++i)
+        {
+            random_roots_quartic[0] = range * udist(rng) / (float)1e8;
+            random_roots_quartic[1] = random_roots_quartic[0] + range * udist(rng) / (float)(1000 * 1e8);
+            random_roots_quartic[2] = random_roots_quartic[0] + range * udist(rng) / (float)(1000 * 1e8);
+            random_roots_quartic[3] = random_roots_quartic[0] + range * udist(rng) / (float)(1000 * 1e8);
+            try
+            {
+                fourth_degree_polynomial<float> P(random_roots_quartic);
+                cur_error = root_finder(P, estimating_functions_quartic[k], sum_avg, exceptions);
+                if (cur_error > max)
+                {
+                    max = cur_error;
+                    worst_case_cubic = P.get_roots();
+                }
+                error_est_sum.push_back(cur_error);
+            }
+            catch (division_by_zero& e)
+            {
+                //std::cout << "exception caught" << std::endl;
+                //std::cout << e.what() << std::endl;
+                ++exceptions;
+            }
+            catch (sqrt_of_negative_number& e)
+            {
+                //std::cout << "exception caught" << std::endl;
+                //std::cout << e.what() << std::endl;
+                ++exceptions;
+            }
+            catch (arccos_out_of_range& e)
+            {
+                //std::cout << "exception caught" << std::endl;
+                //std::cout << e.what() << std::endl;
+                ++exceptions;
+            }
+            catch (nan_value& e)
+            {
+                //std::cout << "exception caught" << std::endl;
+                //std::cout << e.what() << std::endl;
+                ++exceptions;
+            }
+        }
+        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case_cubic, max);
+    }
+
+
+
+
+
+
+
+
+
+    //---Quartic polynomials with 3 almost similar roots---//
+    std::cout << "Quartic polynomials with 3 almost same roots within the interval [0,x]" << std::endl;
+    std::cout << "Enter the number of tests: "; std::cin >> tests;
+    std::cout << "Enter the maximum value of a root: "; std::cin >> range; cout << endl << endl;
+
+    for (int k = 0; k < estimating_functions_quartic.size(); k++)
+    {
+        cout << "Method: " << estimating_functions_quartic_names[k] << std::endl;
+        for (int i = 0; i < tests; ++i)
+        {
+            random_roots_quartic[0] = range * udist(rng) / (float)1e8;
+            random_roots_quartic[1] = random_roots_quartic[0] + range * udist(rng) / (float)(1000 * 1e8);
+            random_roots_quartic[2] = random_roots_quartic[0] + range * udist(rng) / (float)(1000 * 1e8);
+            random_roots_quartic[3] = range * udist(rng) / (float)1e8;
+            try
+            {
+                fourth_degree_polynomial<float> P(random_roots_quartic);
+                cur_error = root_finder(P, estimating_functions_quartic[k], sum_avg, exceptions);
+                if (cur_error > max)
+                {
+                    max = cur_error;
+                    worst_case_cubic = P.get_roots();
+                }
+                error_est_sum.push_back(cur_error);
+            }
+            catch (division_by_zero& e)
+            {
+                //std::cout << "exception caught" << std::endl;
+                //std::cout << e.what() << std::endl;
+                ++exceptions;
+            }
+            catch (sqrt_of_negative_number& e)
+            {
+                //std::cout << "exception caught" << std::endl;
+                //std::cout << e.what() << std::endl;
+                ++exceptions;
+            }
+            catch (arccos_out_of_range& e)
+            {
+                //std::cout << "exception caught" << std::endl;
+                //std::cout << e.what() << std::endl;
+                ++exceptions;
+            }
+            catch (nan_value& e)
+            {
+                //std::cout << "exception caught" << std::endl;
+                //std::cout << e.what() << std::endl;
+                ++exceptions;
+            }
+        }
+        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case_cubic, max);
+    }
+
+
+
+
+
+
+
+
+
+    //---Quartic polynomials with 2 almost similar roots---//
+    std::cout << "Quartic polynomials with 2 almost same roots within the interval [0,x]" << std::endl;
+    std::cout << "Enter the number of tests: "; std::cin >> tests;
+    std::cout << "Enter the maximum value of a root: "; std::cin >> range; cout << endl << endl;
+
+    for (int k = 0; k < estimating_functions_quartic.size(); k++)
+    {
+        cout << "Method: " << estimating_functions_quartic_names[k] << std::endl;
+        for (int i = 0; i < tests; ++i)
+        {
+            for (int i = 0; i < 3; ++i)
+                random_roots_quartic[i] = range * udist(rng) / (float)1e8;
+            random_roots_quartic[3] = random_roots_quartic[2] + range * udist(rng) / (float)(1000 * 1e8);
+            try
+            {
+                fourth_degree_polynomial<float> P(random_roots_quartic);
+                cur_error = root_finder(P, estimating_functions_quartic[k], sum_avg, exceptions);
+                if (cur_error > max)
+                {
+                    max = cur_error;
+                    worst_case_cubic = P.get_roots();
+                }
+                error_est_sum.push_back(cur_error);
+            }
+            catch (division_by_zero& e)
+            {
+                //std::cout << "exception caught" << std::endl;
+                //std::cout << e.what() << std::endl;
+                ++exceptions;
+            }
+            catch (sqrt_of_negative_number& e)
+            {
+                //std::cout << "exception caught" << std::endl;
+                //std::cout << e.what() << std::endl;
+                ++exceptions;
+            }
+            catch (arccos_out_of_range& e)
+            {
+                //std::cout << "exception caught" << std::endl;
+                //std::cout << e.what() << std::endl;
+                ++exceptions;
+            }
+            catch (nan_value& e)
+            {
+                //std::cout << "exception caught" << std::endl;
+                //std::cout << e.what() << std::endl;
+                ++exceptions;
+            }
+        }
+        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case_cubic, max);
     }
 }

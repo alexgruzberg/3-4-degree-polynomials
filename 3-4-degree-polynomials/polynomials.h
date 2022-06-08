@@ -277,7 +277,6 @@ template <typename T>
 fourth_degree_polynomial<std::complex<T>>::fourth_degree_polynomial(std::vector<std::complex<T>> rec_roots) : polynomial<std::complex<T>>(4) //constructor that receives roots
 {
     for (int i = 0; i < 4; ++i) this->roots[i] = rec_roots[i];
-    std::sort(this->roots.begin(), this->roots.end());
     count_coefs();
 }
 

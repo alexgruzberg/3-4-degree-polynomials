@@ -139,6 +139,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="a_salzer.cpp" />
     <ClCompile Include="cardon.cpp" />
     <ClCompile Include="ferrari.cpp" />
     <ClCompile Include="main.cpp" />
