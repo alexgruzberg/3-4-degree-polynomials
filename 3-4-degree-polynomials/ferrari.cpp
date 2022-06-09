@@ -101,11 +101,14 @@ std::vector<std::complex<T>> ferrari(fourth_degree_polynomial<std::complex<T>> P
 	roots[3] = fourth_coef_three + (sqrt_two_m + sqrt(-(two_p_two_m + sqrt_two_q_sqrt_m))) * c_half;
 
 
-	sort(roots.begin(), roots.end(), [](std::complex<T> a, std::complex<T> b) {return (abs(a) > abs(b)); });
-	for (int i = 0; i < 2; ++i)
+	std::sort(roots.begin(), roots.end(), [](std::complex<T> a, std::complex<T> b) {return (a.real() > b.real()); });
+	for (int i = 0; i < 3; ++i)
 	{
-		if (roots[2*i].imag() < -0.000001)
-			swap(roots[2 * i], roots[2 * i + 1]);
+		if (abs(roots[i].real() - roots[i + 1].real()) < 0.000001 && roots[i].imag() < -0.000001)
+		{
+			swap(roots[i], roots[i + 1]);
+			++i;
+		}
 	}
 
 	return roots;

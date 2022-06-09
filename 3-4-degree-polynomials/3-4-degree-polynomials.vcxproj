@@ -142,7 +142,9 @@
     <ClCompile Include="a_salzer.cpp" />
     <ClCompile Include="cardon.cpp" />
     <ClCompile Include="ferrari.cpp" />
+    <ClCompile Include="halley.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="method_3.cpp" />
     <ClCompile Include="tiruneh.cpp" />
     <ClCompile Include="tomas_co.cpp" />
   </ItemGroup>

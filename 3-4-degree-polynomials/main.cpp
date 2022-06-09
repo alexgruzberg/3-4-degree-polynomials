@@ -5,26 +5,28 @@
 using namespace std;
 
 //setting the range for the RNG//
-uniform_int_distribution<mt19937::result_type> udist(0,(float)1e8);
+uniform_int_distribution<mt19937::result_type> udist(0, (float)1e8);
 mt19937 rng;
 
+// Template for finding roots for various methods  //
 template <typename pol, typename root_type>
 inline float root_finder(pol& polynomial, vector<root_type>(*method)(pol), float& sum_avg, int& exceptions)
 {
-        vector<root_type> estimated_roots = method(polynomial);
-        float error = polynomial.error_est_sum(estimated_roots);
-        sum_avg += error;
-        if (isnan(error) || isinf(error))
-            throw division_by_zero();
-        return error;
+    vector<root_type> estimated_roots = method(polynomial);
+    float error = polynomial.error_est_sum(estimated_roots);
+    sum_avg += error;
+    if (isnan(error) || isinf(error))
+        throw division_by_zero();
+    return error;
 }
 
+// Information about all error estimates  //
 template <typename T>
 inline void error_estimation_info(vector<float>& error_estimations, float& sum_avg, int& exceptions, int& tests, vector<T>& worst_case, float& max)
 {
     sort(error_estimations.begin(), error_estimations.end());
     cout << "Error estimation sum| x-x'|" << endl;
-    if (error_estimations.size() > 0)
+    if (error_estimations.size() > 0) // There are some error estimations //
     {
         cout << "Min : " << error_estimations[0] << endl;
         cout << "Max : " << max << endl;
@@ -40,6 +42,7 @@ inline void error_estimation_info(vector<float>& error_estimations, float& sum_a
     error_estimations.clear(); sum_avg = 0; exceptions = 0; max = 0;
 }
 
+// Method for comparing the modulus of complex numbers  //
 template <typename T>
 bool complex_greater(complex<T> a, complex<T> b)
 {
@@ -55,22 +58,17 @@ int main()
     long dur = value.count();
 
 
-    /*vector<complex<float>> crr(3);
-    crr[0] = complex<float>(-0.62, 1.18);
-    crr[1] = complex<float>(-0.62, -1.18);
-    crr[2] = complex<float>(2.24, 0);
-    third_degree_polynomial<complex<float>> pol(crr);
-    vector<complex<float>> roooots = tomas_co(pol);
-    for (int i = 0; i < 3; ++i)
-        cout << crr[i] << " " << roooots[i] << endl;*/
-
     // giving the seed to our RNG //
     std::mt19937::result_type const seedval = dur;
     rng.seed(seedval);
 
 
+
+    // Checking methods on different versions of polynomials //
+
+
     // estimating the error for polynomial with 3 different real roots //
-    
+
     std::cout << "Cubic polynomials with 3 different real roots within the interval [0,x]" << std::endl;
     int tests; std::cout << "Enter the number of tests: "; std::cin >> tests;
     float range; std::cout << "Enter the maximum value of a root: "; std::cin >> range; cout << endl << endl;
@@ -80,7 +78,7 @@ int main()
     vector<float> random_roots_cubic(3);
     vector<float> error_est_sum; float sum_avg = 0;
 
-    vector<vector<float> (*)(third_degree_polynomial<float>)> estimating_functions_cubic(3);
+    vector<vector<float>(*)(third_degree_polynomial<float>)> estimating_functions_cubic(3);
     estimating_functions_cubic[0] = &cardon; estimating_functions_cubic[1] = &tiruneh; estimating_functions_cubic[2] = &tomas_co;
 
     vector<string> estimating_functions_cubic_names(estimating_functions_cubic.size());
@@ -99,7 +97,7 @@ int main()
             {
                 third_degree_polynomial<float> P(random_roots_cubic);
                 cur_error = root_finder(P, estimating_functions_cubic[k], sum_avg, exceptions);
-                if (cur_error > max)
+                if (cur_error > max) // Trying to find the worst case of cubics //
                 {
                     max = cur_error;
                     worst_case_cubic = P.get_roots();
@@ -133,11 +131,9 @@ int main()
         }
         error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case_cubic, max);
     }
-    
 
 
 
-    
 
 
     //Cubic polynomials with a complex conjugate pair //
@@ -169,7 +165,7 @@ int main()
             {
                 third_degree_polynomial<complex<float>> P(random_roots_cubic_c);
                 cur_error = root_finder(P, estimating_functions_cubic_complex[k], sum_avg, exceptions);
-                if (cur_error > max)
+                if (cur_error > max) // Trying to find the worst case of cubics //
                 {
                     max = cur_error;
                     worst_case_cubic_c = P.get_roots();
@@ -228,7 +224,7 @@ int main()
             try
             {
                 third_degree_polynomial<float> P(random_roots_cubic); cur_error = root_finder(P, estimating_functions_cubic[k], sum_avg, exceptions);
-                if (cur_error > max)
+                if (cur_error > max) // Trying to find the worst case of cubics //
                 {
                     max = cur_error;
                     worst_case_cubic = P.get_roots();
@@ -270,9 +266,9 @@ int main()
 
 
 
-    
+
     //---Cubic polynomials with 2 same real roots---//
-    
+
     std::cout << "Cubic polynomials with 2 same real roots within the interval [0,x]" << std::endl;
     std::cout << "Enter the number of tests: "; std::cin >> tests;
     std::cout << "Enter the maximum value of a root: "; std::cin >> range; cout << endl << endl;
@@ -286,9 +282,9 @@ int main()
             random_roots_cubic[2] = random_roots_cubic[1] = range * udist(rng) / (float)1e8;
             try
             {
-                third_degree_polynomial<float> P(random_roots_cubic); 
+                third_degree_polynomial<float> P(random_roots_cubic);
                 cur_error = root_finder(P, estimating_functions_cubic[k], sum_avg, exceptions);
-                if (cur_error > max)
+                if (cur_error > max) // Trying to find the worst case of cubics //
                 {
                     max = cur_error;
                     worst_case_cubic = P.get_roots();
@@ -322,7 +318,7 @@ int main()
         }
         error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case_cubic, max);
     }
-    
+
 
 
 
@@ -347,9 +343,9 @@ int main()
             random_roots_cubic[2] = random_roots_cubic[0] + range * udist(rng) / (float)(1000 * 1e8);
             try
             {
-                third_degree_polynomial<float> P(random_roots_cubic); 
+                third_degree_polynomial<float> P(random_roots_cubic);
                 cur_error = root_finder(P, estimating_functions_cubic[k], sum_avg, exceptions);
-                if (cur_error > max)
+                if (cur_error > max) // Trying to find the worst case of cubics //
                 {
                     max = cur_error;
                     worst_case_cubic = P.get_roots();
@@ -383,10 +379,10 @@ int main()
         }
         error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case_cubic, max);
     }
-    
 
 
-    
+
+
 
 
 
@@ -409,7 +405,7 @@ int main()
             {
                 third_degree_polynomial<float> P(random_roots_cubic);
                 cur_error = root_finder(P, estimating_functions_cubic[k], sum_avg, exceptions);
-                if (cur_error > max)
+                if (cur_error > max) // Trying to find the worst case of cubics //
                 {
                     max = cur_error;
                     worst_case_cubic = P.get_roots();
@@ -477,10 +473,10 @@ int main()
             {
                 fourth_degree_polynomial<float> P(random_roots_quartic);
                 cur_error = root_finder(P, estimating_functions_quartic[k], sum_avg, exceptions);
-                if (cur_error > max)
+                if (cur_error > max) // Trying to find the worst case of quartics //
                 {
                     max = cur_error;
-                    worst_case_cubic = P.get_roots();
+                    worst_case_quartic = P.get_roots();
                 }
                 error_est_sum.push_back(cur_error);
             }
@@ -509,7 +505,7 @@ int main()
                 ++exceptions;
             }
         }
-        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case_cubic, max);
+        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case_quartic, max);
     }
 
 
@@ -531,7 +527,7 @@ int main()
     vector<vector<complex<float>>(*)(fourth_degree_polynomial<complex<float>>)> estimating_functions_quartic_complex(1);
     estimating_functions_quartic_complex[0] = &ferrari;
 
-    vector<string> estimating_functions_quartic_complex_names(estimating_functions_cubic.size());
+    vector<string> estimating_functions_quartic_complex_names(estimating_functions_quartic_complex.size());
     estimating_functions_quartic_complex_names[0] = "Ferrari's solution for quartic equations";
 
     for (int k = 0; k < estimating_functions_quartic_complex.size(); k++)
@@ -544,11 +540,20 @@ int main()
             random_roots_quartic_c[1] = complex<float>(rand_real, -rand_img);
             random_roots_quartic_c[2] = complex<float>(range * udist(rng) / (float)1e8, 0);
             random_roots_quartic_c[3] = complex<float>(range * udist(rng) / (float)1e8, 0);
+            sort(random_roots_quartic_c.begin(), random_roots_quartic_c.end(), [](complex<float> a, complex<float> b) {return (a.real() > b.real()); });
+            for (int i = 0; i < 3; ++i)
+            {
+                if (abs(random_roots_quartic_c[i].real() - random_roots_quartic_c[i + 1].real()) < 0.000001 && random_roots_quartic_c[i].imag() < -0.000001)
+                {
+                    swap(random_roots_quartic_c[i], random_roots_quartic_c[i + 1]);
+                    ++i;
+                }
+            }
             try
             {
                 fourth_degree_polynomial<complex<float>> P(random_roots_quartic_c);
                 cur_error = root_finder(P, estimating_functions_quartic_complex[k], sum_avg, exceptions);
-                if (cur_error > max)
+                if (cur_error > max) // Trying to find the worst case of quartics //
                 {
                     max = cur_error;
                     worst_case_quartic_c = P.get_roots();
@@ -580,10 +585,10 @@ int main()
                 ++exceptions;
             }
         }
-        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case_cubic, max);
+        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case_quartic_c, max);
     }
 
-    
+
 
 
 
@@ -607,11 +612,20 @@ int main()
                 random_roots_quartic_c[2 * i] = complex<float>(rand_real, rand_img);
                 random_roots_quartic_c[2 * i + 1] = complex<float>(rand_real, -rand_img);
             }
+            sort(random_roots_quartic_c.begin(), random_roots_quartic_c.end(), [](complex<float> a, complex<float> b) {return (a.real() > b.real()); });
+            for (int i = 0; i < 3; ++i)
+            {
+                if (abs(random_roots_quartic_c[i].real() - random_roots_quartic_c[i + 1].real()) < 0.000001 && random_roots_quartic_c[i].imag() < -0.000001)
+                {
+                    swap(random_roots_quartic_c[i], random_roots_quartic_c[i + 1]);
+                    ++i;
+                }
+            }
             try
             {
                 fourth_degree_polynomial<complex<float>> P(random_roots_quartic_c);
                 cur_error = root_finder(P, estimating_functions_quartic_complex[k], sum_avg, exceptions);
-                if (cur_error > max)
+                if (cur_error > max) // Trying to find the worst case of quartics //
                 {
                     max = cur_error;
                     worst_case_quartic_c = P.get_roots();
@@ -643,7 +657,7 @@ int main()
                 ++exceptions;
             }
         }
-        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case_cubic, max);
+        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case_quartic_c, max);
     }
 
 
@@ -671,10 +685,10 @@ int main()
             {
                 fourth_degree_polynomial<float> P(random_roots_quartic);
                 cur_error = root_finder(P, estimating_functions_quartic[k], sum_avg, exceptions);
-                if (cur_error > max)
+                if (cur_error > max) // Trying to find the worst case of quartics //
                 {
                     max = cur_error;
-                    worst_case_cubic = P.get_roots();
+                    worst_case_quartic = P.get_roots();
                 }
                 error_est_sum.push_back(cur_error);
             }
@@ -703,7 +717,7 @@ int main()
                 ++exceptions;
             }
         }
-        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case_cubic, max);
+        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case_quartic, max);
     }
 
 
@@ -730,10 +744,10 @@ int main()
             {
                 fourth_degree_polynomial<float> P(random_roots_quartic);
                 cur_error = root_finder(P, estimating_functions_quartic[k], sum_avg, exceptions);
-                if (cur_error > max)
+                if (cur_error > max) // Trying to find the worst case of quartics //
                 {
                     max = cur_error;
-                    worst_case_cubic = P.get_roots();
+                    worst_case_quartic = P.get_roots();
                 }
                 error_est_sum.push_back(cur_error);
             }
@@ -762,7 +776,7 @@ int main()
                 ++exceptions;
             }
         }
-        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case_cubic, max);
+        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case_quartic, max);
     }
 
 
@@ -790,10 +804,10 @@ int main()
             {
                 fourth_degree_polynomial<float> P(random_roots_quartic);
                 cur_error = root_finder(P, estimating_functions_quartic[k], sum_avg, exceptions);
-                if (cur_error > max)
+                if (cur_error > max) // Trying to find the worst case of quartics //
                 {
                     max = cur_error;
-                    worst_case_cubic = P.get_roots();
+                    worst_case_quartic = P.get_roots();
                 }
                 error_est_sum.push_back(cur_error);
             }
@@ -822,7 +836,7 @@ int main()
                 ++exceptions;
             }
         }
-        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case_cubic, max);
+        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case_quartic, max);
     }
 
 
@@ -851,10 +865,10 @@ int main()
             {
                 fourth_degree_polynomial<float> P(random_roots_quartic);
                 cur_error = root_finder(P, estimating_functions_quartic[k], sum_avg, exceptions);
-                if (cur_error > max)
+                if (cur_error > max) // Trying to find the worst case of quartics //
                 {
                     max = cur_error;
-                    worst_case_cubic = P.get_roots();
+                    worst_case_quartic = P.get_roots();
                 }
                 error_est_sum.push_back(cur_error);
             }
@@ -883,7 +897,7 @@ int main()
                 ++exceptions;
             }
         }
-        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case_cubic, max);
+        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case_quartic, max);
     }
 
 
@@ -912,10 +926,10 @@ int main()
             {
                 fourth_degree_polynomial<float> P(random_roots_quartic);
                 cur_error = root_finder(P, estimating_functions_quartic[k], sum_avg, exceptions);
-                if (cur_error > max)
+                if (cur_error > max) // Trying to find the worst case of quartics //
                 {
                     max = cur_error;
-                    worst_case_cubic = P.get_roots();
+                    worst_case_quartic = P.get_roots();
                 }
                 error_est_sum.push_back(cur_error);
             }
@@ -944,7 +958,7 @@ int main()
                 ++exceptions;
             }
         }
-        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case_cubic, max);
+        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case_quartic, max);
     }
 
 
@@ -972,10 +986,10 @@ int main()
             {
                 fourth_degree_polynomial<float> P(random_roots_quartic);
                 cur_error = root_finder(P, estimating_functions_quartic[k], sum_avg, exceptions);
-                if (cur_error > max)
+                if (cur_error > max) // Trying to find the worst case of quartics //
                 {
                     max = cur_error;
-                    worst_case_cubic = P.get_roots();
+                    worst_case_quartic = P.get_roots();
                 }
                 error_est_sum.push_back(cur_error);
             }
@@ -1004,6 +1018,6 @@ int main()
                 ++exceptions;
             }
         }
-        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case_cubic, max);
+        error_estimation_info(error_est_sum, sum_avg, exceptions, tests, worst_case_quartic, max);
     }
 }

@@ -1,3 +1,5 @@
+//метод Залзера
+//Написал Едренников Д.А.//
 #include "polynomials.h"
 #include <vector>
 #include <iostream>
@@ -25,6 +27,8 @@ inline float algorith(const float b, const float c, const float d)/*Функция алго
     {
         float h = sqrt(4 * abs(f) * one_third);
         float i = 4 * g / (h * h * h);
+        if (isinf(i) || isnan(i))
+            throw division_by_zero();
         if (f > 0)
         {
             return h * sinh(one_third * asinh(i)) - e;/*Возвращение единственного вещественного корня*/
@@ -73,6 +77,8 @@ void A_Salzer(const float z, const float x, const float y, const float v, vector
     else
     {
         n = (z * x1 - 2 * y) * 0.25f / m;
+        if (isinf(real(n)) || isnan(real(n)) || isinf(imag(n)) || isnan(imag(n)))
+            throw division_by_zero();
     }
     if (imag(m) == 0)/* Если переменная m вещественная, то корни многочлена вычисляеются одним методоном*/
     {
@@ -102,6 +108,8 @@ void A_Salzer(const float z, const float x, const float y, const float v, vector
         else
         {
             dl = 0.5f * be / gm;
+            if (isinf(real(dl)) || isnan(real(dl)) || isinf(imag(dl)) || isnan(imag(dl)))
+                throw division_by_zero();
         }
         complex <float> t = 0.5f * (m + dl);
         /*Вычисление самих корней многочлена*/
@@ -112,5 +120,24 @@ void A_Salzer(const float z, const float x, const float y, const float v, vector
         solution[2] = complex <float>(temp - real(gm) * 0.5f, real(t) - imag(gm) * 0.5f);
         solution[3] = conj(solution[2]);//Вычисление комплексно сопряженного корня
 
+    }
+}
+
+template<typename T>
+vector<T> A_SalzerW(fourth_degree_polynomial<T> P)
+{
+    vector<float> coefs = P.get_coefs();
+    vector<complex<float>> solution;
+    A_Salzer(coefs[3], coefs[2], coefs[1], coefs[0], solution);
+    if (T == complex<float>)
+        return solution;
+    else
+    {
+        vector<T> solution1;
+        for (int i = 0; i < 4; i++)
+        {
+            solution1.push_back(real(solution[i]));
+        }
+        return solution1;
     }
 }
