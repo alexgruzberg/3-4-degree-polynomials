@@ -95,7 +95,9 @@ vector<complex<T>> Tschirnhaus_transformation(vector<complex<T>> F)
     complex<double> pp = p * p;
     complex<double> ppp = pp * p;
     complex<double> reverse_p = complex<double>{ 1,0 } / p;
-    if ((isinf(real(reverse_p)) || isnan(real(reverse_p))) && (isinf(imag(reverse_p)) || isnan(imag(reverse_p))))   //проверка на ноль в знаменателе [если да - поиск корней для t^3 + q = 0]
+    double re_rev_p = real(reverse_p);
+    double im_rev_p = imag(reverse_p);
+    if ((isinf(re_rev_p) || isnan(re_rev_p)) && (isinf(im_rev_p) || isnan(im_rev_p)))   //проверка на ноль в знаменателе [если да - поиск корней для t^3 + q = 0]
     {
         //throw division_by_zero();
         vector<complex<T>> x0 = cubic_roots(-q);
