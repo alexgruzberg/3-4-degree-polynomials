@@ -98,8 +98,7 @@ vector<complex<T>> Tschirnhaus_transformation(vector<complex<T>> F)
     if ((isinf(real(reverse_p)) || isnan(real(reverse_p))) && (isinf(imag(reverse_p)) || isnan(imag(reverse_p))))   //проверка на ноль в знаменателе [если да - поиск корней для t^3 + q = 0]
     {
         //throw division_by_zero();
-        complex<double> y_cubic_0 = -q;
-        vector<complex<T>> x0 = cubic_roots(y_cubic_0);
+        vector<complex<T>> x0 = cubic_roots(-q);
         for (int l = 0; l <= 2; l++)
         {
             x0[l] = x0[l] - F[0] * one_third;
@@ -114,8 +113,7 @@ vector<complex<T>> Tschirnhaus_transformation(vector<complex<T>> F)
     /*Далее в вычислениях участвует только один корень квадратного уравнения (пояснение см. в документации)*/
     complex<double> y_cubic_1 = complex<double>{ 9, 0 } *qqq * a[0] * reverse_pp + complex<double>{ 4, 0 }*one_third* a[0] * p* q - complex<double>{ 8, 0 }*one_twentyseventh* ppp - complex<double>{ 2, 0 } *qq;
 
-    vector<complex<double>> y1 = cubic_roots(y_cubic_1);
-    if (y1 == vector<complex<double>>{0, 0, 0})     //проверка кубических корней из y1 на нулевое значение
+    if (y_cubic_1 == 0)     //проверка куба на нулевое значение
     {
         vector<complex<double>> sq_poly_coefs0 = { a[0], b };
         vector<complex<T>> main_roots0 = roots_of_square_poly(sq_poly_coefs0);
